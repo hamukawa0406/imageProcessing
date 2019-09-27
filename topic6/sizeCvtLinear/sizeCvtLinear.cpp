@@ -53,36 +53,36 @@ void sizeCvtLinear(struct ppmimg *src, struct ppmimg *dst, double scale){
 			else{
                 int x0 = (int)(x / scale);
                 int y0 = (int)(y / scale);
-                if (x0 < (src->iwidth-1) && y0 < (src->iheight-1)) {
+                if (x0 < ((src->iwidth) - 1) && y0 < ((src->iheight) - 1)) {
                     // 左上の画素との距離
                     double a = x / scale - x0;
                     double b = y / scale - y0;
                 
-                    struct RGBColor newcolor ;
                     struct RGBColor color[4];
+					struct RGBColor new_element;
                         
                     color[0] = getPnmPixel(src, x0, y0);
                     color[1] = getPnmPixel(src, x0+1, y0);
                     color[2] = getPnmPixel(src, x0, y0+1);
                     color[3] = getPnmPixel(src, x0+1, y0+1);
                         
-                        // Color Element
-                    struct RGBColor c_element[4];
-                        
-                    for (int k = 0; k < 3; k++) {
-                        for(int i = 0; i < 4; i++) {
-                            c_element[i] = (color[i] >> 8*k) & 0x00ff;
-                        }
-                                
+                    for (int k = 0; k < 3; k++) {                                
                         // Xの距離×Yの距離を各画素の重みとする
-                        struct RGBColor new_element = (int)((1-a)*(1-b)*c_element[0]
-                                            + a*(1-b)*c_element[1]
-                                            + (1-a)*b*c_element[2]
-                                            + a*b*c_element[3]);
-                        newcolor += (int)(new_element << 8*k);
+                        new_element.R = (unsigned char)((1-a)*(1-b)*color[0].R
+                                            + a*(1-b)*color[1].R
+                                            + (1-a)*b*color[2].R
+                                            + a*b*color[3].R);
+                        new_element.G = (unsigned char)((1-a)*(1-b)*color[0].G
+                                            + a*(1-b)*color[1].G
+                                            + (1-a)*b*color[2].G
+                                            + a*b*color[3].G);
+                        new_element.B = (unsigned char)((1-a)*(1-b)*color[0].B
+                                            + a*(1-b)*color[1].B
+                                            + (1-a)*b*color[2].B
+                                            + a*b*color[3].B);
                     }
                         
-                    setPnmPixel(dst, x, y, newcolor);
+                    setPnmPixel(dst, x, y, new_element);
                 }
 
 			}
