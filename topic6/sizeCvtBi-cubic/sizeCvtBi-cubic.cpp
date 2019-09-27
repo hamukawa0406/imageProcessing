@@ -72,6 +72,9 @@ void sizeCvtBiCubic(struct ppmimg *src, struct ppmimg *dst, double scale){
                 
             // バイキュービックの処理範囲
             if (xBase >= 1 && xBase < src->iwidth - 2 && yBase >= 1 && yBase < src->iheight - 2) {
+                color_element.R = 0;
+                color_element.G = 0;
+                color_element.B = 0;
                        
                 // 基点の周辺16画素を取得して処理
                 for (int i = -1; i <= 2; i++) {
@@ -109,17 +112,19 @@ void sizeCvtBiCubic(struct ppmimg *src, struct ppmimg *dst, double scale){
 						else {
                             continue;
                         }
-                        //printf("%f\n", distX);
+                    //    printf("%f ", weight);
                                         
                         // 実際に画素を取得
                         struct RGBColor color_process = getPnmPixel(src, xCurrent, yCurrent);
                                         
                         // 画素をRGB分割し、重みをかけて足し合わせる
-                        color_element.R = (unsigned char)(color_process.R*weight);
-                        color_element.G = (unsigned char)(color_process.G*weight);
-                        color_element.B = (unsigned char)(color_process.B*weight);
+                        color_element.R += (unsigned char)(color_process.R*weight);
+                        color_element.G += (unsigned char)(color_process.G*weight);
+                        color_element.B += (unsigned char)(color_process.B*weight);
                     }
+                 //   putchar('\n');
                 }
+                //putchar('\n');
             }
                 
         	setPnmPixel(dst, x, y, color_element);
