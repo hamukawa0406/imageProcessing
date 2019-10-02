@@ -21,11 +21,11 @@ struct ppmimg{
 	int cmode;
 	//ascii color(P3):3
 	//ascii gray (P2):1
-	char magicnumber[10];//ƒeƒLƒXƒgŒ`®ƒJƒ‰[‚ÆƒOƒŒƒCƒXƒP[ƒ‹‚Ì‚İ(P3,P2)
+	char magicnumber[10];//ï¿½eï¿½Lï¿½Xï¿½gï¿½`ï¿½ï¿½ï¿½Jï¿½ï¿½ï¿½[ï¿½ÆƒOï¿½ï¿½ï¿½Cï¿½Xï¿½Pï¿½[ï¿½ï¿½ï¿½Ì‚ï¿½(P3,P2)
 	unsigned char* dat;
 };
 
-void main(void);
+//void main(void);
 
 struct ppmimg *makeimagestruct(struct ppmimg* simg);
 void loadppmimage(char *imagename,struct ppmimg* simg);

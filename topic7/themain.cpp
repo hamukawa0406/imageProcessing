@@ -1,15 +1,12 @@
 #include "ppmload.h"
 #include<stdio.h>
 
-//最近傍法    http://www7a.biglobe.ne.jp/~fairytale/article/program/graphics.html 参考
-//線形補間法　　　http://www7a.biglobe.ne.jp/~fairytale/article/program/graphics.html 参考
-//バイキュービック補間法　　<- 死ぬ
+#define ALPHA 0.2
 
 //void inputScale(double *scale);
-void sizeCvtNearestNeighbor(struct ppmimg *src, struct ppmimg *dst, double scale);
+void alphaBlending(struct ppmimg *src1, struct ppmimg *src2, struct ppmimg *dst, double alphah);
 unsigned char min(unsigned char a, unsigned char b, unsigned char c);
 unsigned char max(unsigned char a, unsigned char b, unsigned char c);
-unsigned char roundAngle(unsigned char angle);
 
 char dstName[256] = {0};
 
@@ -18,65 +15,54 @@ int main(void){
 	int i;
 	unsigned char ave = 0;
 	char inputTxt[256] = {0};
-	double scale = 1;
-	struct ppmimg *image1=NULL, *image2=NULL;
+	struct ppmimg *image1=NULL, *image2=NULL, *image3=NULL;
 
-//	inputScale(&scale);
-
-	puts("何倍に拡大しますか?");
-    printf("倍率: ");
-	fflush(stdin);
-    scanf("%lf", &scale);
-	
-	sprintf(dstName, "sizeCvtNearestNeighbor");
+	sprintf(dstName, "alphaBlending");
 
 	image1 = makeimagestruct(image1);
 	image2 = makeimagestruct(image2);
+	printf("kokomadekitade\n");
 	loadppmimage("Lenna.ppm",image1);
-	image2 = createppmimage(image2, (int)(image1->iwidth*scale), (int)(image1->iheight*scale),image1->cmode);
-	sizeCvtNearestNeighbor(image1, image2, scale);
+	loadppmimage("Sailboat.ppm",image2);
+	printf("klfgkl\n");
+	
+	image3 = createppmimage(image3, image1->iwidth, image1->iheight,image1->cmode);
+	printf(";lkj\n");
+	alphaBlending(image1, image2, image3, ALPHA);
+	printf("asdga\n");
 
 	deleteppmimg(image1);
 	deleteppmimg(image2);
+	deleteppmimg(image3);
 
 	return 0;
 }
-/*
-void inputScale(double &scale){
-	puts("何倍に拡大しますか?");
-    printf("倍率: ");
-	fflush(stdin);
-    scanf("%s", scale);
-	
-	sprintf(dstName, "sizeCvtNearestNeighbor");
-}
-*/
-void sizeCvtNearestNeighbor(struct ppmimg *src, struct ppmimg *dst, double scale){
+
+
+void alphaBlending(struct ppmimg *src1, struct ppmimg *src2, struct ppmimg *dst, double alpha){
 	int x, y;
 	char _dstName[256];
 	sprintf(_dstName, dstName);
 	for(y=0; y < dst->iheight; y++){
 		for(x=0; x<dst->iwidth; x++){
-	//		struct RGBColor trgb = getPnmPixel(src,x,y);
-			if(src->cmode == 1){
+			if(src1->cmode == 1){
 				puts("入力画像はカラーにしてください。");
 				continue;
 			}
 			else{
-                // 四捨五入して最近傍を求める
-                // scaleは拡大率
-                int xp = (int)(x / scale);
-                int yp = (int)(y / scale);
-                
-                if (xp < src->iwidth && yp < src->iheight) {
-                    struct RGBColor trgb = getPnmPixel(src, xp, yp);
-                    setPnmPixel(dst, x, y, trgb);
-				}
+				struct RGBColor trgb1 = getPnmPixel(src1, dst->iwidth, dst->iheight);
+				struct RGBColor trgb2 = getPnmPixel(src2, dst->iwidth, dst->iheight);
+				struct RGBColor trgb3;
+				trgb3.R = (unsigned char)((1-alpha)*trgb1.R + alpha*trgb2.R);
+				trgb3.G = (unsigned char)((1-alpha)*trgb1.G + alpha*trgb2.G);
+				trgb3.B = (unsigned char)((1-alpha)*trgb1.B + alpha*trgb2.B);
+				setPnmPixel(dst, dst->iwidth, dst->iheight, trgb3);
 			}
-		//	setPnmPixel(dst,x,y,trgb);
 		}
+		printf("どうしよ\n");
 	}
 	sprintf(dstName, "%s.ppm", _dstName);
+	printf("%s\n", dstName);
 	saveppmimage(dst, dstName);
 }
 
@@ -101,12 +87,4 @@ unsigned char max(unsigned char a, unsigned char b, unsigned char c)
 		if(b > c) return b;
 	}
 	return c;
-}
-
-unsigned char roundAngle(unsigned char angle)
-{
-	if(angle < 0)
-		return angle + 360;
-	else if(angle >= 360)
-		return angle - 360;
 }

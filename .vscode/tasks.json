@@ -1,0 +1,20 @@
+{
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "bin build active file",
+            "command": "C:\\MinGW\\bin\\g++",
+            "args": [
+                "-g",
+                "${file}",
+                "c:\\Users\\g1533\\imageProcessing\\ppmloadfix2\\ppmload.cpp",
+                "-o",
+                "${fileDirname}\\${fileBasenameNoExtension}.exe"
+            ],
+  ///          "options": {
+  //              "cwd": "C:\\MinGW"
+  //          }
+        }
+    ],
+    "version": "2.0.0"
+}
