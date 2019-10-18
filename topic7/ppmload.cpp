@@ -100,15 +100,19 @@ struct ppmimg *cloneppmimage(struct ppmimg* simg,struct ppmimg *dimage){
 }
 
 struct ppmimg *createppmimage(struct ppmimg* cimage,int width,int height,int mode){
-	int bufsize = sizeof(unsigned char);
-	cimage->dat = (unsigned char *)calloc(width*height*mode, bufsize);
+	//struct ppmimg *tempimg=(struct ppmimg *)malloc(sizeof(struct ppmimg));
+	printf("ksdf\n");
+	fflush(stdin);
+	cimage->dat = (unsigned char *)malloc(sizeof(unsigned char)*width*height*mode);
+	if(cimage->dat == NULL) printf("dfagg\n");
+	fflush(stdin);
+	printf("sad\n");
 	cimage->cmode=mode;
 	cimage->depth=255;
 	cimage->iheight=height;
 	cimage->iwidth =width;
 	if(mode == 1)sprintf(cimage->magicnumber,"P2");
 	else sprintf(cimage->magicnumber,"P3");
-
 	for(int j=0;j<height;j++){
 		for(int i=0;i<width;i++){
 			struct RGBColor trgb;
@@ -119,7 +123,7 @@ struct ppmimg *createppmimage(struct ppmimg* cimage,int width,int height,int mod
 			setPnmPixel(cimage,i,j,trgb);
 		}
 	}
-	return cimage;
+	return(cimage);
 }
 
 void saveppmimage(ppmimg *simg,char *imagename){

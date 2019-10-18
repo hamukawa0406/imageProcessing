@@ -3,7 +3,6 @@
 
 #define ALPHA 0.2
 
-//void inputScale(double *scale);
 void alphaBlending(struct ppmimg *src1, struct ppmimg *src2, struct ppmimg *dst, double alphah);
 unsigned char min(unsigned char a, unsigned char b, unsigned char c);
 unsigned char max(unsigned char a, unsigned char b, unsigned char c);
@@ -14,21 +13,24 @@ char dstName[256] = {0};
 int main(void){
 	int i;
 	unsigned char ave = 0;
+	double intxt = 0;
 	char inputTxt[256] = {0};
-	struct ppmimg *image1=NULL, *image2=NULL, *image3=NULL;
-
+	struct ppmimg *image1=NULL, *image2=NULL, *image3 = NULL;
+	do{
+		scanf("%lf", &intxt);
+	}while(intxt < 0 && intxt > 1);
+	fflush(stdin);
 	sprintf(dstName, "alphaBlending");
 
 	image1 = makeimagestruct(image1);
-	image2 = makeimagestruct(image2);
-	printf("kokomadekitade\n");
 	loadppmimage("Lenna.ppm",image1);
+	image2 = makeimagestruct(image2);
 	loadppmimage("Sailboat.ppm",image2);
-	printf("klfgkl\n");
+	image3 = makeimagestruct(image3);
 	
 	image3 = createppmimage(image3, image1->iwidth, image1->iheight,image1->cmode);
 	printf(";lkj\n");
-	alphaBlending(image1, image2, image3, ALPHA);
+	alphaBlending(image1, image2, image3, intxt);
 	printf("asdga\n");
 
 	deleteppmimg(image1);
@@ -41,6 +43,7 @@ int main(void){
 
 void alphaBlending(struct ppmimg *src1, struct ppmimg *src2, struct ppmimg *dst, double alpha){
 	int x, y;
+	double tmp = 1;
 	char _dstName[256];
 	sprintf(_dstName, dstName);
 	for(y=0; y < dst->iheight; y++){
@@ -50,16 +53,17 @@ void alphaBlending(struct ppmimg *src1, struct ppmimg *src2, struct ppmimg *dst,
 				continue;
 			}
 			else{
-				struct RGBColor trgb1 = getPnmPixel(src1, dst->iwidth, dst->iheight);
-				struct RGBColor trgb2 = getPnmPixel(src2, dst->iwidth, dst->iheight);
+				struct RGBColor trgb1 = getPnmPixel(src1, x, y);
+				struct RGBColor trgb2 = getPnmPixel(src2, x, y);
 				struct RGBColor trgb3;
-				trgb3.R = (unsigned char)((1-alpha)*trgb1.R + alpha*trgb2.R);
+				tmp = (1-alpha)*trgb1.R + alpha*trgb2.R;
+				trgb3.R = (unsigned char)tmp;
 				trgb3.G = (unsigned char)((1-alpha)*trgb1.G + alpha*trgb2.G);
 				trgb3.B = (unsigned char)((1-alpha)*trgb1.B + alpha*trgb2.B);
-				setPnmPixel(dst, dst->iwidth, dst->iheight, trgb3);
+//				printf("%d %d %d\n", trgb3.R, trgb3.G, trgb3.B);
+				setPnmPixel(dst, x, y, trgb3);
 			}
 		}
-		printf("どうしよ\n");
 	}
 	sprintf(dstName, "%s.ppm", _dstName);
 	printf("%s\n", dstName);
