@@ -1,11 +1,8 @@
 #include "ppmload.h"
 #include<stdio.h>
 
-//最近傍法    http://www7a.biglobe.ne.jp/~fairytale/article/program/graphics.html 参考
-//線形補間法　　　http://www7a.biglobe.ne.jp/~fairytale/article/program/graphics.html 参考
-//バイキュービック補間法　　<- 死ぬ
+//参考　教科書p154
 
-//void inputScale(double *scale);
 void sizeCvtNearestNeighbor(struct ppmimg *src, struct ppmimg *dst, double scale);
 unsigned char min(unsigned char a, unsigned char b, unsigned char c);
 unsigned char max(unsigned char a, unsigned char b, unsigned char c);
