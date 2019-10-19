@@ -101,12 +101,10 @@ struct ppmimg *cloneppmimage(struct ppmimg* simg,struct ppmimg *dimage){
 
 struct ppmimg *createppmimage(struct ppmimg* cimage,int width,int height,int mode){
 	//struct ppmimg *tempimg=(struct ppmimg *)malloc(sizeof(struct ppmimg));
-	printf("ksdf\n");
 	fflush(stdin);
 	cimage->dat = (unsigned char *)malloc(sizeof(unsigned char)*width*height*mode);
 	if(cimage->dat == NULL) printf("dfagg\n");
 	fflush(stdin);
-	printf("sad\n");
 	cimage->cmode=mode;
 	cimage->depth=255;
 	cimage->iheight=height;
