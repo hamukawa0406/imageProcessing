@@ -32,7 +32,7 @@ void loadppmimage(char *imagename,struct ppmimg* simg){
 	}
 	if(buff[0]=='P'){
 		sprintf((simg)->magicnumber,"%s",buff);
-		simg->magicnumber[2] = '\0';//fgetsï¿½ï¿½
+		simg->magicnumber[2] = '\0';//fgets‚Í
 	}
 	fgets(buff,255,fp);
 	while(buff[0]=='#'){
@@ -101,10 +101,7 @@ struct ppmimg *cloneppmimage(struct ppmimg* simg,struct ppmimg *dimage){
 
 struct ppmimg *createppmimage(struct ppmimg* cimage,int width,int height,int mode){
 	//struct ppmimg *tempimg=(struct ppmimg *)malloc(sizeof(struct ppmimg));
-	fflush(stdin);
 	cimage->dat = (unsigned char *)malloc(sizeof(unsigned char)*width*height*mode);
-	if(cimage->dat == NULL) printf("dfagg\n");
-	fflush(stdin);
 	cimage->cmode=mode;
 	cimage->depth=255;
 	cimage->iheight=height;
@@ -184,9 +181,9 @@ if(img->dat != NULL)free(img->dat);
 struct RGBColor getColorReversePnmPixel(struct ppmimg* simg,int x,int y){
 	struct RGBColor colordat;
 	if(simg->cmode==3){	
-//ï¿½ï¿½ï¿½ï¿½ï¿½ÉFï¿½ï¿½ï¿½]ï¿½ï¿½ï¿½ï¿½ï¿½sï¿½Nï¿½Zï¿½ï¿½ï¿½ï¿½ï¿½Æ‚ï¿½ï¿½Ä‚ï¿½ï¿½éˆï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½iï¿½Jï¿½ï¿½ï¿½[ï¿½ÌŽï¿½ï¿½j
+//‚±‚±‚ÉF”½“]‚µ‚½ƒsƒNƒZƒ‹‚ð‚Æ‚Á‚Ä‚­‚éˆ—‚ð‘‚­iƒJƒ‰[‚ÌŽžj
 	}else{
-//ï¿½ï¿½ï¿½ï¿½ï¿½ÉFï¿½ï¿½ï¿½]ï¿½ï¿½ï¿½ï¿½ï¿½sï¿½Nï¿½Zï¿½ï¿½ï¿½ï¿½ï¿½Æ‚ï¿½ï¿½Ä‚ï¿½ï¿½éˆï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½iï¿½Oï¿½ï¿½ï¿½[ï¿½Xï¿½Pï¿½[ï¿½ï¿½ï¿½ÌŽï¿½ï¿½j
+//‚±‚±‚ÉF”½“]‚µ‚½ƒsƒNƒZƒ‹‚ð‚Æ‚Á‚Ä‚­‚éˆ—‚ð‘‚­iƒOƒŒ[ƒXƒP[ƒ‹‚ÌŽžj
 	}
 	return colordat;
 }
@@ -195,8 +192,8 @@ void colorReverse(struct ppmimg* simg){
 	struct RGBColor trgb;
 	for(int j=0;j<(simg->iheight);j++){
 		for(int i=0;(i<simg->iwidth);i++){
-			//ï¿½Fï¿½ï¿½ï¿½]ï¿½ï¿½ï¿½ï¿½ï¿½sï¿½Nï¿½Zï¿½ï¿½ï¿½ï¿½ï¿½Æ‚ï¿½ï¿½Ä‚ï¿½ï¿½ÄŒï¿½ï¿½Ìƒsï¿½Nï¿½Zï¿½ï¿½ï¿½ï¿½uï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-			//ï¿½ï¿½ï¿½Ì‚Ü‚Ü‚ï¿½ï¿½ÆŒï¿½ï¿½Ì‰æ‘œï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì‚ÅƒRï¿½sï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+			//F”½“]‚µ‚½ƒsƒNƒZƒ‹‚ð‚Æ‚Á‚Ä‚«‚ÄŒ³‚ÌƒsƒNƒZƒ‹‚ð’u‚«Š·‚¦‚é
+			//‚±‚Ì‚Ü‚Ü‚¾‚ÆŒ³‚Ì‰æ‘œ‚ª‘‚«Š·‚¦‚ç‚ê‚é‚Ì‚ÅƒRƒs[‚ðì‚Á‚Ä‚»‚ê‚ð‘‚«Š·‚¦‚½‚Ù‚¤‚ª‚¢‚¢
 		}
 	}
 }
