@@ -4,7 +4,9 @@
 //参考　教科書p154
 
 void pixelize(struct ppmimg *src, struct ppmimg *dst, int minBlock);
-unsigned char roundAngle(unsigned char angle);
+void averaging(struct ppmimg *src, int i, int j, int minBlock, struct RGBColor *aveRGB);
+void setAveRGB(struct ppmimg *dst, int i, int j, int minBlock, struct RGBColor trgb);
+unsigned char roundAngle(int angle);
 
 char dstName[256] = {0};
 
@@ -16,8 +18,6 @@ int main(void){
 	int minBlock8 = 8;
 	int minBlock16 = 16;
 	struct ppmimg *image1=NULL, *image2=NULL, *image3=NULL;
-
-	sprintf(dstName, "pixelize");
 
 	image1 = makeimagestruct(image1);
 	image2 = makeimagestruct(image2);
@@ -37,27 +37,64 @@ int main(void){
 
 void pixelize(struct ppmimg *src, struct ppmimg *dst, int minBlock){
 	int x, y;
+	int i = 0;
 	char _dstName[256];
-	sprintf(_dstName, dstName);
-	for(y=0; y < dst->iheight; y++){
-		for(x=0; x<dst->iwidth; x++){
-			struct RGBColor trgb = getPnmPixel(src, x, y);
-			if(src->cmode == 1){
-				puts("入力画像はカラーにしてください。");
-				continue;
-			}
-			else{
-
-			}
-			setPnmPixel(dst,x,y,trgb);
+	sprintf(_dstName, "pixelize");
+	for(y=0; y < dst->iheight; y += minBlock){
+		for(x=0; x<dst->iwidth; x += minBlock){
+			struct RGBColor trgb;
+			averaging(src, x, y, minBlock, &trgb);
+			setAveRGB(dst, x, y, minBlock, trgb);
+			i++;
 		}
 	}
 	sprintf(dstName, "%sMinBlock%d.ppm", _dstName, minBlock);
 	saveppmimage(dst, dstName);
 }
 
+void averaging(struct ppmimg *src, int i, int j, int minBlock, struct RGBColor *aveRGB){
+	int x, y;
+	int R = 0;
+	int G = 0;
+	int B = 0;
+	for(y = j; y < j+minBlock; y++){
+		for(x = i; x < i+minBlock; x++){
+			struct RGBColor trgb = getPnmPixel(src, x, y);
+			if(src->cmode == 1){
+				puts("入力画像はカラーにしてください。");
+				continue;
+			}
+			else{
+				R += trgb.R;
+				G += trgb.G;
+				B += trgb.B;
+			}
+		}
+	}
+	aveRGB->R = roundAngle(R/(minBlock*minBlock));
+	aveRGB->G = roundAngle(G/(minBlock*minBlock));
+	aveRGB->B = roundAngle(B/(minBlock*minBlock));
+	
+}
 
-unsigned char roundAngle(unsigned char angle)
+void setAveRGB(struct ppmimg *dst, int i, int j, int minBlock, struct RGBColor aveRGB){
+	int x, y;
+	for(y = j; y < j+minBlock; y++){
+		for(x = i; x < i+minBlock; x++){
+			if(dst->cmode == 1){
+				puts("出力画像です");
+				continue;
+			}
+			else{
+				setPnmPixel(dst, x, y, aveRGB);
+			}
+		}
+	}
+}
+
+
+
+unsigned char roundAngle(int angle)
 {
     while(angle < 0 && angle >= 256){
 	    if(angle < 0)
