@@ -25,8 +25,6 @@ struct ppmimg{
 	unsigned char* dat;
 };
 
-//void main(void);
-
 struct ppmimg *makeimagestruct(struct ppmimg* simg);
 void loadppmimage(char *imagename,struct ppmimg* simg);
 void saveppmimage(struct ppmimg* simg,char *imagename);
