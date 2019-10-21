@@ -3,10 +3,65 @@
 
 //参考　教科書p154
 
+class dither {
+    private:
+	    int in1;
+	    static const int bayer[4][4];
+	    static const int halftone[4][4];
+	    static const int screw[4][4];
+	    static const int screw2[4][4];
+	    static const int medEmph[4][4];
+	    static const int dotConc[4][4];
+		int dthr[4][4];
+	public:
+		dither();
+		dither(int);
+
+};
+
+const int dither::bayer[4][4] = 
+                  {{  0,  8,  2, 10},
+                   { 12,  4, 14,  6},
+				   {  3, 11,  1,  9},
+				   { 15,  7, 13,  5}
+				   };
+const int dither::halftone[4][4] = 
+	                 {{ 10,  4,  6,  8},
+                      { 12,  0,  2, 14},
+				      {  7,  9, 11,  5},
+				      {  3, 15, 13,  1}
+				   };
+const int dither::screw[4][4] = 
+                  {{ 13,  7,  6, 12},
+                   {  8,  1,  0,  5},
+				   {  9,  2,  3,  4},
+				   { 14, 10, 11, 15}
+				  };
+const int dither::screw2[4][4] = 
+	               {{ 15,  4,  8, 12},
+                    { 11,  0,  1,  5},
+				    {  7,  3,  2,  9},
+				    { 14, 10,  6, 13}
+				   };
+const int dither::medEmph[4][4] = 
+	                {{ 12,  4,  8, 14},
+                     { 11,  0,  2,  6},
+				     {  7,  3,  1, 10},
+				     { 15,  9,  5, 13}
+				    };
+
+const int dither::dotConc[4][4] = 
+	                {{ 13,  4,  8, 14},
+                     { 10,  0,  1,  7},
+				     {  6,  3,  2, 11},
+				     { 15,  9,  5, 13}
+				    };    
+
 void dithering(struct ppmimg *src, struct ppmimg *dst, int channel);
 unsigned char roundAngle(unsigned char angle);
 
 char dstName[256] = {0};
+
 
 
 int main(void){
@@ -80,7 +135,6 @@ void dithering(struct ppmimg *src, struct ppmimg *dst, int channel){
 	}
 	saveppmimage(dst, dstName);
 }
-
 
 unsigned char roundAngle(unsigned char angle)
 {
