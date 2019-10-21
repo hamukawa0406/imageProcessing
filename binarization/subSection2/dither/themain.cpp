@@ -3,7 +3,7 @@
 
 //参考　教科書p154
 
-void pixelize(struct ppmimg *src, struct ppmimg *dst, int minBlock);
+void dithering(struct ppmimg *src, struct ppmimg *dst, int channel);
 unsigned char roundAngle(unsigned char angle);
 
 char dstName[256] = {0};
@@ -11,31 +11,38 @@ char dstName[256] = {0};
 
 int main(void){
 	int i;
-	unsigned char ave = 0;
-	char inputTxt[256] = {0};
-	int minBlock8 = 8;
-	int minBlock16 = 16;
-	struct ppmimg *image1=NULL, *image2=NULL, *image3=NULL;
+	unsigned char dither = 0;
+	struct ppmimg *image1=NULL, *image2=NULL;
 
-	sprintf(dstName, "pixelize");
+	sprintf(dstName, "dithering");
+
+	do{
+		fflush(stdin);
+		puts("ディザ法で2値化させる");
+		puts("1: Bayer");
+		puts("2: halftone");
+		puts("3: Screw");
+		puts("4: Screw2");
+		puts("5: medianEmphasize");
+		puts("6: dotConcentrate");
+		scanf("%d", &dither);
+	}while(dither < 0 && dither > 6);
 
 	image1 = makeimagestruct(image1);
 	image2 = makeimagestruct(image2);
-	image3 = makeimagestruct(image3);
-	loadppmimage("Lenna.ppm",image1);
+	loadppmimage("LENNA.pgm",image1);
 	image2 = createppmimage(image2, image1->iwidth, image1->iheight, image1->cmode);
-	image3 = createppmimage(image3, image1->iwidth, image1->iheight, image1->cmode);
-	pixelize(image1, image2, minBlock8);
-	pixelize(image1, image3, minBlock16);
+	dithering(image1, image2, dither);
 
 	deleteppmimg(image1);
 	deleteppmimg(image2);
-	deleteppmimg(image3);
 
 	return 0;
 }
 
-void pixelize(struct ppmimg *src, struct ppmimg *dst, int minBlock){
+
+
+void dithering(struct ppmimg *src, struct ppmimg *dst, int channel){
 	int x, y;
 	char _dstName[256];
 	sprintf(_dstName, dstName);
@@ -43,16 +50,34 @@ void pixelize(struct ppmimg *src, struct ppmimg *dst, int minBlock){
 		for(x=0; x<dst->iwidth; x++){
 			struct RGBColor trgb = getPnmPixel(src, x, y);
 			if(src->cmode == 1){
-				puts("入力画像はカラーにしてください。");
-				continue;
+				switch(channel){
+					case 1:
+					    sprintf(dstName, "%sBayer.pgm", _dstName);
+					    break;
+					case 2:
+					    sprintf(dstName, "%sHalftone.pgm", _dstName);
+					    break;
+					case 3:
+					    sprintf(dstName, "%sScrew.pgm", _dstName);
+					    break;
+					case 4:
+					    sprintf(dstName, "%sScrew2.pgm", _dstName);
+					    break;
+					case 5:
+					    sprintf(dstName, "%sMedianEmph.pgm", _dstName);
+					    break;
+					case 6:
+					    sprintf(dstName, "%sBayerDotConc.pgm", _dstName);
+					    break;
+				}
 			}
 			else{
-
+				puts("入力画像はグレースケールにしてください。");
+				continue;
 			}
 			setPnmPixel(dst,x,y,trgb);
 		}
 	}
-	sprintf(dstName, "%sMinBlock%d.ppm", _dstName, minBlock);
 	saveppmimage(dst, dstName);
 }
 
