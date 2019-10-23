@@ -3,31 +3,91 @@
 
 //参考　教科書p154
 
-void thresholding(struct ppmimg *src, struct ppmimg *dst, unsigned char threshold);
+class dither {
+    private:
+	    int in1;
+	    static const int bayer[4][4];
+	    static const int halftone[4][4];
+	    static const int screw[4][4];
+	    static const int screw2[4][4];
+	    static const int medEmph[4][4];
+	    static const int dotConc[4][4];
+		int dthr[4][4];
+	public:
+		dither();
+		dither(int);
+
+};
+
+const int dither::bayer[4][4] = 
+                  {{  0,  8,  2, 10},
+                   { 12,  4, 14,  6},
+				   {  3, 11,  1,  9},
+				   { 15,  7, 13,  5}
+				   };
+const int dither::halftone[4][4] = 
+	                 {{ 10,  4,  6,  8},
+                      { 12,  0,  2, 14},
+				      {  7,  9, 11,  5},
+				      {  3, 15, 13,  1}
+				   };
+const int dither::screw[4][4] = 
+                  {{ 13,  7,  6, 12},
+                   {  8,  1,  0,  5},
+				   {  9,  2,  3,  4},
+				   { 14, 10, 11, 15}
+				  };
+const int dither::screw2[4][4] = 
+	               {{ 15,  4,  8, 12},
+                    { 11,  0,  1,  5},
+				    {  7,  3,  2,  9},
+				    { 14, 10,  6, 13}
+				   };
+const int dither::medEmph[4][4] = 
+	                {{ 12,  4,  8, 14},
+                     { 11,  0,  2,  6},
+				     {  7,  3,  1, 10},
+				     { 15,  9,  5, 13}
+				    };
+
+const int dither::dotConc[4][4] = 
+	                {{ 13,  4,  8, 14},
+                     { 10,  0,  1,  7},
+				     {  6,  3,  2, 11},
+				     { 15,  9,  5, 13}
+				    };    
+
+void dithering(struct ppmimg *src, struct ppmimg *dst, int channel);
 unsigned char roundAngle(unsigned char angle);
 
 char dstName[256] = {0};
 
 
+
 int main(void){
 	int i;
-	char inputTxt[256] = {0};
-	unsigned char threshold = 0;
+	unsigned char dither = 0;
 	struct ppmimg *image1=NULL, *image2=NULL;
 
-	sprintf(dstName, "thresholding");
+	sprintf(dstName, "dithering");
 
 	do{
 		fflush(stdin);
-		printf("閾値(0~255): ");
-		scanf("%d", &threshold);
-	}while(threshold < 0 && threshold >= 256);
+		puts("ディザ法で2値化させる");
+		puts("1: Bayer");
+		puts("2: halftone");
+		puts("3: Screw");
+		puts("4: Screw2");
+		puts("5: medianEmphasize");
+		puts("6: dotConcentrate");
+		scanf("%d", &dither);
+	}while(dither < 0 && dither > 6);
 
 	image1 = makeimagestruct(image1);
 	image2 = makeimagestruct(image2);
 	loadppmimage("LENNA.pgm",image1);
 	image2 = createppmimage(image2, image1->iwidth, image1->iheight, image1->cmode);
-	thresholding(image1, image2, threshold);
+	dithering(image1, image2, dither);
 
 	deleteppmimg(image1);
 	deleteppmimg(image2);
@@ -35,7 +95,9 @@ int main(void){
 	return 0;
 }
 
-void thresholding(struct ppmimg *src, struct ppmimg *dst, unsigned char threshold){
+
+
+void dithering(struct ppmimg *src, struct ppmimg *dst, int channel){
 	int x, y;
 	char _dstName[256];
 	sprintf(_dstName, dstName);
@@ -44,11 +106,25 @@ void thresholding(struct ppmimg *src, struct ppmimg *dst, unsigned char threshol
 			struct RGBColor trgb = getPnmPixel(src, x, y);
 			struct RGBColor dstrgb; 
 			if(src->cmode == 1){
-				if(trgb.dens > threshold){
-					dstrgb.dens = 255;
-				}
-				else{
-					dstrgb.dens = 0;
+				switch(channel){
+					case 1:
+					    sprintf(dstName, "%sBayer.pgm", _dstName);
+					    break;
+					case 2:
+					    sprintf(dstName, "%sHalftone.pgm", _dstName);
+					    break;
+					case 3:
+					    sprintf(dstName, "%sScrew.pgm", _dstName);
+					    break;
+					case 4:
+					    sprintf(dstName, "%sScrew2.pgm", _dstName);
+					    break;
+					case 5:
+					    sprintf(dstName, "%sMedianEmph.pgm", _dstName);
+					    break;
+					case 6:
+					    sprintf(dstName, "%sBayerDotConc.pgm", _dstName);
+					    break;
 				}
 			}
 			else{
@@ -58,10 +134,8 @@ void thresholding(struct ppmimg *src, struct ppmimg *dst, unsigned char threshol
 			setPnmPixel(dst,x,y,dstrgb);
 		}
 	}
-	sprintf(dstName, "%s%d.pgm", _dstName, threshold);
 	saveppmimage(dst, dstName);
 }
-
 
 unsigned char roundAngle(unsigned char angle)
 {
