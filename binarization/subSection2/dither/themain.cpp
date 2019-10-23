@@ -1,23 +1,10 @@
 #include "ppmload.h"
+#include "dither.h"
 #include<stdio.h>
 
 //参考　教科書p154
 
-class dither {
-    private:
-	    int in1;
-	    static const int bayer[4][4];
-	    static const int halftone[4][4];
-	    static const int screw[4][4];
-	    static const int screw2[4][4];
-	    static const int medEmph[4][4];
-	    static const int dotConc[4][4];
-		int dthr[4][4];
-	public:
-		dither();
-		dither(int);
-
-};
+char dstName[256] = {0};
 
 const int dither::bayer[4][4] = 
                   {{  0,  8,  2, 10},
@@ -57,16 +44,96 @@ const int dither::dotConc[4][4] =
 				     { 15,  9,  5, 13}
 				    };    
 
-void dithering(struct ppmimg *src, struct ppmimg *dst, int channel);
-unsigned char roundAngle(unsigned char angle);
 
-char dstName[256] = {0};
+dither::dither(int x): channel(x), threshold(0)
+{
+	char _dstName[256];
+	sprintf(_dstName, dstName);
+	switch(x){
+		case 1:
+		    for(int j = 0; j < 4; j++){
+				for(int i = 0; i < 4; i++){
+					dthr[i][j] = bayer[i][j];
+				}
+			}
+			sprintf(dstName, "%sBayer.pgm", _dstName);
+			break;
+		case 2:
+		    for(int j = 0; j < 4; j++){
+				for(int i = 0; i < 4; i++){
+					dthr[i][j] = halftone[i][j];
+				}
+			}
+			sprintf(dstName, "%sHalftone.pgm", _dstName);	
+			break;
+		case 3:
+		    for(int j = 0; j < 4; j++){
+				for(int i = 0; i < 4; i++){
+					dthr[i][j] = screw[i][j];
+				}
+			}
+	    	sprintf(dstName, "%sScrew.pgm", _dstName);
+			break;
+		case 4:
+		    for(int j = 0; j < 4; j++){
+				for(int i = 0; i < 4; i++){
+					dthr[i][j] = screw2[i][j];
+				}
+			}
+		    sprintf(dstName, "%sScrew2.pgm", _dstName);
+			break;
+		case 5:
+		    for(int j = 0; j < 4; j++){
+				for(int i = 0; i < 4; i++){
+					dthr[i][j] = medEmph[i][j];
+				}
+			}
+			sprintf(dstName, "%sMedianEmph.pgm", _dstName);
+			break;
+		case 6:
+		    for(int j = 0; j < 4; j++){
+				for(int i = 0; i < 4; i++){
+					dthr[i][j] = dotConc[i][j];
+				}
+			}
+	    	sprintf(dstName, "%sBayerDotConc.pgm", _dstName);
+			break;
+	}
+}
+
+int dither::getDither(int i, int j){
+	return dthr[i][j];
+}
+void dither::dithering(struct ppmimg *src, struct ppmimg *dst, int i, int j){
+	for(int y = 0; y < 4; y++){
+		for(int x = 0; x < 4; x++){
+			struct RGBColor trgb = getPnmPixel(src, i + x, j + y);
+			struct RGBColor dstrgb;
+			threshold = calcDither(x, y);
+			if(judgeBinarization(trgb.dens)) dstrgb.dens = 255;
+			else dstrgb.dens = 0;
+            setPnmPixel(dst,i + x,j + y,dstrgb);
+		}
+	}
+}
+
+int dither::calcDither(int x, int y){
+	int ans = getDither(x, y)*16+8;
+	return ans;
+}
+
+bool dither::judgeBinarization(unsigned char dens){
+	if(dens >= threshold) return true;
+	else return false;
+}
+
+unsigned char roundAngle(unsigned char angle);
 
 
 
 int main(void){
 	int i;
-	unsigned char dither = 0;
+	unsigned char dthCannel = 0;
 	struct ppmimg *image1=NULL, *image2=NULL;
 
 	sprintf(dstName, "dithering");
@@ -80,14 +147,23 @@ int main(void){
 		puts("4: Screw2");
 		puts("5: medianEmphasize");
 		puts("6: dotConcentrate");
-		scanf("%d", &dither);
-	}while(dither < 0 && dither > 6);
+		printf("dither: ");
+		scanf("%d", &dthCannel);
+	}while(dthCannel < 0 && dthCannel > 6);
 
 	image1 = makeimagestruct(image1);
 	image2 = makeimagestruct(image2);
 	loadppmimage("LENNA.pgm",image1);
 	image2 = createppmimage(image2, image1->iwidth, image1->iheight, image1->cmode);
-	dithering(image1, image2, dither);
+
+	dither dth(dthCannel);
+
+	for(int y = 0; y < image2->iheight; y += 4){
+		for(int x = 0; x < image2->iwidth; x += 4){
+			dth.dithering(image1, image2, x, y);
+		}
+	}
+	saveppmimage(image2, dstName);
 
 	deleteppmimg(image1);
 	deleteppmimg(image2);
@@ -97,45 +173,6 @@ int main(void){
 
 
 
-void dithering(struct ppmimg *src, struct ppmimg *dst, int channel){
-	int x, y;
-	char _dstName[256];
-	sprintf(_dstName, dstName);
-	for(y=0; y < dst->iheight; y++){
-		for(x=0; x<dst->iwidth; x++){
-			struct RGBColor trgb = getPnmPixel(src, x, y);
-			struct RGBColor dstrgb; 
-			if(src->cmode == 1){
-				switch(channel){
-					case 1:
-					    sprintf(dstName, "%sBayer.pgm", _dstName);
-					    break;
-					case 2:
-					    sprintf(dstName, "%sHalftone.pgm", _dstName);
-					    break;
-					case 3:
-					    sprintf(dstName, "%sScrew.pgm", _dstName);
-					    break;
-					case 4:
-					    sprintf(dstName, "%sScrew2.pgm", _dstName);
-					    break;
-					case 5:
-					    sprintf(dstName, "%sMedianEmph.pgm", _dstName);
-					    break;
-					case 6:
-					    sprintf(dstName, "%sBayerDotConc.pgm", _dstName);
-					    break;
-				}
-			}
-			else{
-				puts("入力画像はグレースケールにしてください。");
-				continue;
-			}
-			setPnmPixel(dst,x,y,dstrgb);
-		}
-	}
-	saveppmimage(dst, dstName);
-}
 
 unsigned char roundAngle(unsigned char angle)
 {
