@@ -149,10 +149,13 @@ RGBColor InctImage::getPnmPixel(int x,int y) const
 	if(this->cmode == 0 || this->cmode == 3){
 		_rgb.Bit = dat[iwidth*y+x];
 		return(_rgb);
-	}else if(this->cmode == 1 || this->cmode == 4){
+	}
+	else if(this->cmode == 1 || this->cmode == 4){
 		_rgb.Dens = dat[iwidth*y+x];
 		return(_rgb);
-	}else if(this->cmode == 2 || this->cmode == 5){
+	}
+	else if(this->cmode == 2 || this->cmode == 5){
+//		cout << dat.size() << endl;
 		_rgb.setRGB(dat[3*(iwidth*y+x)],dat[3*(iwidth*y+x)+1],dat[3*(iwidth*y+x)+2]);
 		return(_rgb);
 	}
@@ -499,9 +502,15 @@ void InctImage::loadppmimage(string filename)
 		exit(1);
 	}
 
+	string tmp2 = "P3";
 	getline(infile,head_str);
+	int tmp = 0;
 	if(head_str[0] == 'P')
 	{
+		if(head_str[head_str.size()-1] == '\r'){
+			cout << "this file include \'CR\'" << endl;
+			throw "this file include \'CR\'";
+		}
 		header.Pnum.assign(head_str);
 		magicN = head_str;
 		cout << "Magig Number is " << head_str << endl;
@@ -511,8 +520,7 @@ void InctImage::loadppmimage(string filename)
 		}else if(head_str=="P2"){
 			cmode=1;
 			channel = 1;
-		}else if(magicN == string("P3"))
-		{
+		}else if(head_str=="P3"){
 			cmode=2;
 			channel = 3;
 		}else if(head_str=="P4")
@@ -549,7 +557,7 @@ void InctImage::loadppmimage(string filename)
 	if(!(header.Pnum == "P1" || header.Pnum == "P4"))
 	{
 		getline(infile,head_str);
-		//cout << "Depth : " << head_str << endl;
+//		cout << "Depth : " << head_str << endl;
 		this->idepth = stoi(head_str);
 	}else{
 		cout << "This Image is PBM(Ascii or Binary)" << endl;
@@ -604,6 +612,9 @@ void InctImage::loadppmimage(string filename)
 
 		//cout << "dat.size() = " << dat.size() << endl;
 		cout << "total data size is " << k-1 << " byte" << endl;
+	}
+	else{
+		cout << "ssdfjas;ldgj" << endl;
 	}
 
 	cout << "Open Process Successfully Completed!" << endl;

@@ -49,7 +49,10 @@ public:
 	void setG(unsigned char _g){G=_g;}
 	void setB(unsigned char _b){B=_b;}
 	void setDens(unsigned char _dens){Dens=_dens;}
-	void setRGB(unsigned char _r,unsigned char _g,unsigned char _b){R=_r;G=_g;B=_b;}
+	void setRGB(unsigned char _r,unsigned char _g,unsigned char _b){
+		
+		R=_r;G=_g;B=_b;
+	}
 	void setBit(unsigned char _bit){}
 };
 
