@@ -31,11 +31,11 @@ struct point affineTrans::getSrcPoint(const struct point p, const struct point s
     struct point srcP {0, 0};
     struct point dstImgSize {srcImageSize.x / 2, srcImageSize.y / 2};
     srcP.x = (int)((scale.y*cos(rotate)*p.x + sin(rotate)*p.y
-                   - (paraTrans.x + dstImgSize.x)*scale.y*cos(rotate) - (paraTrans.y + dstImgSize.y)*sin(rotate) + dstImgSize.x)
+                   - (paraTrans.x + dstImgSize.x)*scale.y*cos(rotate) - (paraTrans.y + dstImgSize.y)*sin(rotate) + scale.x*dstImgSize.x)
                   / (scale.x*scale.y*cos(rotate)*cos(rotate) + sin(rotate)*sin(rotate)));
     //(int)(((double)e*p.x - b*p.y + b*f - c*e)/(a*e - b*d));
     srcP.y = (int)(((-1)*sin(rotate)*p.x + scale.x*cos(rotate)*p.y
-                  + (paraTrans.y - dstImgSize.y)*scale.x*cos(rotate) + (dstImgSize.x - paraTrans.x)*sin(rotate) + dstImgSize.y)
+                  + (paraTrans.y - dstImgSize.y)*scale.x*cos(rotate) + (dstImgSize.x - paraTrans.x)*sin(rotate) + scale.y*dstImgSize.y)
                   / (scale.x*scale.y*cos(rotate)*cos(rotate) + sin(rotate)*sin(rotate))) ;
     //(int)(((double)-1*d*p.x + a*p.y + c*d - a*f)/(a*e - b*d));
     return srcP;
