@@ -38,7 +38,7 @@ struct point affineTrans::getSrcPoint(const struct point p, const struct point s
                   / (scale.x*scale.y*cos(rotate)*cos(rotate) + sin(rotate)*sin(rotate)));
 //*/
     srcP.y =  (int)(((double)-1*d*(p.x - dstImgSize.x) + a*(p.y - dstImgSize.y) + c*d - a*f + dstImgSize.y)
-           /(a*e - b*d) + dstImgSize.x);
+           /(a*e - b*d) + dstImgSize.y);
 /*
     (int)(((-1)*sin(rotate)*p.x + scale.x*cos(rotate)*p.y
                   + (paraTrans.y - dstImgSize.y)*scale.x*cos(rotate) + (dstImgSize.x - paraTrans.x)*sin(rotate) + scale.y*dstImgSize.y)
