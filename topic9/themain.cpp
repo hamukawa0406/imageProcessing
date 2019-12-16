@@ -1,112 +1,46 @@
-#include "ppmload.h"
-#include<stdio.h>
+#include "ifstream_string.h"
+#include "filter.h"
+#include<iostream>
 
-//最近傍法    http://www7a.biglobe.ne.jp/~fairytale/article/program/graphics.html 参考
-//線形補間法　　　http://www7a.biglobe.ne.jp/~fairytale/article/program/graphics.html 参考
-//バイキュービック補間法　　<- 死ぬ
-
-//void inputScale(double *scale);
-void sizeCvtNearestNeighbor(struct ppmimg *src, struct ppmimg *dst, double scale);
-unsigned char min(unsigned char a, unsigned char b, unsigned char c);
-unsigned char max(unsigned char a, unsigned char b, unsigned char c);
-unsigned char roundAngle(unsigned char angle);
-
-char dstName[256] = {0};
-
+/*
+            {{1/16, 1/8, 1/16}},
+            {{1/8, 1/4, 1/8}},
+            {{1/16, 1/8, 1/16}}
+        };
+//*/ 
 
 int main(void){
-	int i;
-	unsigned char ave = 0;
-	char inputTxt[256] = {0};
-	double scale = 1;
-	struct ppmimg *image1=NULL, *image2=NULL;
+	InctImage* image1 = new InctImage();
 
-//	inputScale(&scale);
+	try{
+		image1->loadppmimage("Lenna.ppm");
+	}
+	catch(string str){
+		cout << str << endl;
+	}
 
-	puts("何倍に拡大しますか?");
-    printf("倍率: ");
-	fflush(stdin);
-    scanf("%lf", &scale);
-	
-	sprintf(dstName, "sizeCvtNearestNeighbor");
+	cout << "cmode=" << image1->getImageMode() << endl;
+	cout << "magicNum=" << image1->getMagicNumber() << endl;
+	InctImage* dstImage = new InctImage(image1->getWidth(), image1->getHeight(), image1->getDepth(), image1->getImageMode());
 
-	image1 = makeimagestruct(image1);
-	image2 = makeimagestruct(image2);
-	loadppmimage("Lenna.ppm",image1);
-	image2 = createppmimage(image2, (int)(image1->iwidth*scale), (int)(image1->iheight*scale),image1->cmode);
-	sizeCvtNearestNeighbor(image1, image2, scale);
 
-	deleteppmimg(image1);
-	deleteppmimg(image2);
+	//image3 = createppmimage(image3, image1->iwidth, image1->iheight, image1->cmode);
 
-	return 0;
-}
-/*
-void inputScale(double &scale){
-	puts("何倍に拡大しますか?");
-    printf("倍率: ");
-	fflush(stdin);
-    scanf("%s", scale);
-	
-	sprintf(dstName, "sizeCvtNearestNeighbor");
-}
-*/
-void sizeCvtNearestNeighbor(struct ppmimg *src, struct ppmimg *dst, double scale){
-	int x, y;
-	char _dstName[256];
-	sprintf(_dstName, dstName);
-	for(y=0; y < dst->iheight; y++){
-		for(x=0; x<dst->iwidth; x++){
-	//		struct RGBColor trgb = getPnmPixel(src,x,y);
-			if(src->cmode == 1){
-				puts("入力画像はカラーにしてください。");
-				continue;
-			}
-			else{
-                // 四捨五入して最近傍を求める
-                // scaleは拡大率
-                int xp = (int)(x / scale);
-                int yp = (int)(y / scale);
-                
-                if (xp < src->iwidth && yp < src->iheight) {
-                    struct RGBColor trgb = getPnmPixel(src, xp, yp);
-                    setPnmPixel(dst, x, y, trgb);
-				}
-			}
-		//	setPnmPixel(dst,x,y,trgb);
+	filter flt = filter();
+
+	for (int j = 1; j<image1->getHeight() - 1; j++){
+		for (int i = 1; i<image1->getWidth() - 1; i++){
+			RGBColor tRGB;
+
+			tRGB = flt.filtering(image1, i, j);
+
+			dstImage->setPnmPixel(i, j, tRGB);
 		}
 	}
-	sprintf(dstName, "%s.ppm", _dstName);
-	saveppmimage(dst, dstName);
-}
+	dstImage->savePnmImage("RedOnly.ppm");
 
-//*/
-unsigned char min(unsigned char a, unsigned char b, unsigned char c)
-{
-	if(a < b){
-		if(a < c) return a;
-	}
-	else{
-		if(b < c) return b;
-	}
-	return c;
-}
+	image1->ReleaseImage();
+	dstImage->ReleaseImage();
 
-unsigned char max(unsigned char a, unsigned char b, unsigned char c)
-{
-	if(a > b){
-		if(a > c) return a;
-	}
-	else{
-		if(b > c) return b;
-	}
-	return c;
-}
-
-unsigned char roundAngle(unsigned char angle)
-{
-	if(angle < 0)
-		return angle + 360;
-	else if(angle >= 360)
-		return angle - 360;
+	return 0;
 }
