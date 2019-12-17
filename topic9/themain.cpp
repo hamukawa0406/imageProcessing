@@ -1,6 +1,8 @@
 #include "ifstream_string.h"
 #include "filter.h"
 #include<iostream>
+#include<array>
+#include<algorithm>
 
 /*
             {{1/16, 1/8, 1/16}},
@@ -13,7 +15,7 @@ int main(void){
 	InctImage* image1 = new InctImage();
 
 	try{
-		image1->loadppmimage("Lenna.ppm");
+		image1->loadppmimage("inussg.pgm");
 	}
 	catch(string str){
 		cout << str << endl;
@@ -37,7 +39,7 @@ int main(void){
 			dstImage->setPnmPixel(i, j, tRGB);
 		}
 	}
-	dstImage->savePnmImage("RedOnly.ppm");
+	dstImage->savePnmImage("rank.pgm");
 
 	image1->ReleaseImage();
 	dstImage->ReleaseImage();

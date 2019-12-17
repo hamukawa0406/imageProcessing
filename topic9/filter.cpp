@@ -4,8 +4,20 @@
 #include "ifstream_string.h"
 #include "filter.h"
 
+std::array<std::array<const double, filter::size>, filter::size>  filter::gaussian {{
+            {0.0625, 0.125, 0.0625},
+            {0.125, 0.25, 0.125},
+            {0.0625, 0.125, 0.0625}
+}};
 
-filter::filter(): select {3}, rank{5}, filt {}
+std::array<std::array<const double, filter::size>, filter::size>  filter::sharp {{
+            {0, -1, 0},
+            {-1, 5, -1},
+            {0, -1, 0}
+}};
+
+
+filter::filter(): select {5}, rank{5}, filt {}
 {
 }
 
@@ -17,12 +29,10 @@ RGBColor filter::filtering(InctImage *src, int i, int j){
             return medianFilter(src, i, j);
         case 3: //mode
             return modeFilter(src, i, j);    
-        /*
         case 4: //gaussian
             return gaussFilter(src, i, j);
         case 5: //sharp
             return sharpFilter(src, i, j);
-        //*/
     }
 }
 RGBColor filter::rankFilter(InctImage *src, int i, int j){
@@ -69,7 +79,7 @@ void filter::areaSort(InctImage *src, std::array<RGBColor, size*size> &arr,int i
     auto itr = arr.begin();
     for(int y = 0; y < 3; y++){
         for(int x = 0; x < 3; x++){
-            tRGB = src->getPnmPixel(i+x-1, j+x-1);
+            tRGB = src->getPnmPixel(i+x-1, j+y-1);
             *itr = tRGB;
             ++itr;
         }
@@ -78,4 +88,38 @@ void filter::areaSort(InctImage *src, std::array<RGBColor, size*size> &arr,int i
               [](const RGBColor& x, const RGBColor& y)
               {return x.Dens < y.Dens;});
 }
+
+RGBColor filter::gaussFilter(InctImage *src, int i, int j){
+    RGBColor tRGB;
+    double dens {};
+    double sumDens {};
+    for(int y = 0; y < 3; y++){
+        for(int x = 0; x < 3; x++){
+            tRGB = src->getPnmPixel(i+x-1, j+y-1);
+            dens = (double)tRGB.Dens*gaussian[x][y];
+            sumDens += dens;
+//            std::cout << gaussian[x][y] << std::endl;
+        }
+    }
+    if(sumDens > 255) tRGB.Dens = 255;
+    else if(sumDens <0) tRGB.Dens = 0;
+    else tRGB.Dens = sumDens;
+//    std::cout << "tRGB.Dens " << sumDens << std::endl;
+    return tRGB;
+}
+
+RGBColor filter::sharpFilter(InctImage *src, int i, int j){
+    RGBColor tRGB;
+    double dens {};
+    double sumDens {};
+    for(int y = 0; y < 3; y++){
+        for(int x = 0; x < 3; x++){
+            tRGB = src->getPnmPixel(i+x-1, j+y-1);
+            dens = tRGB.Dens*sharp[x][y];
+            sumDens += dens;
+        }
+    }
+    return tRGB;
+}
+
 //*/

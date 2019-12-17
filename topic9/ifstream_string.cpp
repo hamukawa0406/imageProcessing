@@ -26,7 +26,7 @@ InctImage::InctImage()
 }
 
 
-//�R�s�[�R���X�g���N�^
+//�R�s�[�R���X�g���N�
 InctImage::InctImage(const InctImage &obj)
 {
 	iwidth=obj.iwidth;
