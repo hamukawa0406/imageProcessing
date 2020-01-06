@@ -1,4 +1,7 @@
+#include<iostream>
+#include<array>
 #include "ifstream_string.h"
+
 
 class Statistic
 {
@@ -19,7 +22,9 @@ private:
     double calcMode();
     void setHist();
 public:
+    Statistic();
     Statistic(InctImage);
+    ~Statistic();
     double getAve();
     double getVar();
     double getMax();
