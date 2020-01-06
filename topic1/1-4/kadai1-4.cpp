@@ -1,7 +1,5 @@
 #include "ifstream_string.h"
 
-void thresholding(struct ppmimg *src, struct ppmimg *dst, unsigned char threshold);
-
 int main(void){
 		InctImage* image1 = new InctImage();
 		//ppmimg�̎��̂𐶐�
@@ -67,31 +65,3 @@ int main(void){
 
 	return 0;
 }
-
-void thresholding(struct ppmimg *src, struct ppmimg *dst, unsigned char threshold){
-	int x, y;
-	char _dstName[256];
-	sprintf(_dstName, dstName);
-	for(y=0; y < dst->iheight; y++){
-		for(x=0; x<dst->iwidth; x++){
-			struct RGBColor trgb = getPnmPixel(src, x, y);
-			struct RGBColor dstrgb; 
-			if(src->cmode == 1){
-				if(trgb.dens > threshold){
-					dstrgb.dens = 255;
-				}
-				else{
-					dstrgb.dens = 0;
-				}
-			}
-			else{
-				puts("入力画像はグレースケールにしてください。");
-				continue;
-			}
-			setPnmPixel(dst,x,y,dstrgb);
-		}
-	}
-	sprintf(dstName, "%s%d.pgm", _dstName, threshold);
-	saveppmimage(dst, dstName);
-}
-
