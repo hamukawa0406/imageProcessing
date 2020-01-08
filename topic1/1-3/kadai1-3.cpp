@@ -9,7 +9,7 @@ int main(void){
 		try{
 			image1->loadppmimage("aveRGB.ppm");
 			image2->loadppmimage("monocro.ppm");
-		}
+		}	
 		catch(string str){
 			cout << str << endl;
 		}
