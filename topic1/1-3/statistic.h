@@ -1,6 +1,7 @@
 #include<iostream>
 #include<array>
 #include<algorithm>
+#include<cmath>
 #include "ifstream_string.h"
 
 

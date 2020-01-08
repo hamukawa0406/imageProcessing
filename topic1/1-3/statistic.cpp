@@ -57,7 +57,7 @@ double Statistic::calcAve(double sum){
 }
 
 double Statistic::calcVar(double sum){
-    return sum - pow(ave, 2);
+    return sum/sortedData.size() - pow(ave, 2);
 } 
 
 
@@ -78,12 +78,12 @@ void Statistic::setHist(){
 
 void Statistic::outputStatistic(){
 
-    writing_file << getAve() << std::endl;
-    writing_file << getVar() << std::endl;
-    writing_file << getMax() << std::endl;
-    writing_file << getMin() << std::endl;
-    writing_file << getMed() << std::endl;
-    writing_file << getMode() << std::endl;
+    writing_file << " Average: " << getAve() << std::endl;
+    writing_file << "Variance" << getVar() << std::endl;
+    writing_file << "     Max: " << getMax() << std::endl;
+    writing_file << "     Min" << getMin() << std::endl;
+    writing_file << "  Median" << getMed() << std::endl;
+    writing_file << "    Mode" << getMode() << std::endl;
     printHist();
 }
 
@@ -92,6 +92,8 @@ void Statistic::printHist(){
     int classValue {ichikaichou / 2};
     int value {};
     int roughness {100};
+
+    writing_file << "Histgram" << std::endl;
     writing_file << "class value      frequency" << std::endl;
 
     for(auto x = 0; x < hist.size(); x++){
