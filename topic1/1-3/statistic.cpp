@@ -77,6 +77,9 @@ void Statistic::setHist(unsigned int kaichou){
 
 
 void Statistic::printHist(){
+    for(auto x: hist){
+        std::cout << std::endl;
+    }
 }
 //*/
 double Statistic::getAve(){
