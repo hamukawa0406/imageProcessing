@@ -22,7 +22,7 @@ int main(void){
 		}
 //*/
 		Statistic stat(*image1);
-
+		stat.outputStatistic();
 		image1->ReleaseImage();
 		image2->ReleaseImage();
 

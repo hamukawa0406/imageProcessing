@@ -8,6 +8,8 @@ class Statistic
 {
 private:
     InctImage& img;
+    std::string outname;
+    std::ofstream writing_file;
     std::vector<unsigned char> sortedData;
     double ave;
     double var;
@@ -19,9 +21,8 @@ private:
     void setStatistic();
     double calcAve(double sum);
     double calcVar(double sum);
-    void setHist(unsigned int kaichou);
+    void setHist();
 public:
-    Statistic();
     Statistic(InctImage & _img);
     double getAve();
     double getVar();
@@ -30,4 +31,5 @@ public:
     double getMed();
     double getMode();
     void printHist();
+    void outputStatistic();
 };

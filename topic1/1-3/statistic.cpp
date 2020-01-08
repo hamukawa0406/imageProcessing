@@ -1,10 +1,13 @@
 #include "ifstream_string.h"
 #include "statistic.h"
 #include <map>
+#include <iomanip>
 
 Statistic::Statistic(InctImage& _img):
-    img{_img}
+    img{_img},
+    outname {"statistics.txt"}
 {
+    writing_file.open(outname, std::ios::out);
     int count {};
     RGBColor trgb;
     sortedData.resize(img.getWidth()*img.getHeight());
@@ -46,7 +49,7 @@ void Statistic::setStatistic(){
     min = sortedData.front();
     max = sortedData.back();
     med = sortedData.at(sortedData.size() / 2);
-    setHist(hist.size());
+    setHist();
 }
 
 double Statistic::calcAve(double sum){
@@ -58,27 +61,51 @@ double Statistic::calcVar(double sum){
 } 
 
 
-void Statistic::setHist(unsigned int kaichou){
+void Statistic::setHist(){
     unsigned char preDens {0};
-    int ichikaichou = (int)(256/kaichou);
+    int ichikaichou {(int)(256/hist.size())};
     int upperLim {ichikaichou};
     int i {};
     
     for(auto x : sortedData){
-        if(x < upperLim){
-            ++hist[i];
-        }
-        else{
+        while(x >= upperLim){
             ++i;
             upperLim += ichikaichou;
         }
+        ++hist[i];
     }
 }
 
+void Statistic::outputStatistic(){
+
+    writing_file << getAve() << std::endl;
+    writing_file << getVar() << std::endl;
+    writing_file << getMax() << std::endl;
+    writing_file << getMin() << std::endl;
+    writing_file << getMed() << std::endl;
+    writing_file << getMode() << std::endl;
+    printHist();
+}
 
 void Statistic::printHist(){
-    for(auto x: hist){
-        std::cout << std::endl;
+    int ichikaichou {256/(int)hist.size()};
+    int classValue {ichikaichou / 2};
+    int value {};
+    int roughness {100};
+    writing_file << "class value      frequency" << std::endl;
+
+    for(auto x = 0; x < hist.size(); x++){
+        int i = 0;
+        writing_file << std::setw(7) << classValue << "     ";
+        value = hist[x];
+        while(value > 0){
+            writing_file << '*';
+            ++i;
+            value -= roughness;
+        }
+        i = 0;
+        classValue += ichikaichou;
+        writing_file << std::endl;
     }
 }
 //*/
