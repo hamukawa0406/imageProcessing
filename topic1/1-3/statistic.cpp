@@ -3,8 +3,7 @@
 #include <map>
 
 Statistic::Statistic(InctImage& _img):
-    img{_img},
-    Lut{}
+    img{_img}
 {
     int count {};
     RGBColor trgb;
@@ -25,24 +24,29 @@ void Statistic::setStatistic(){
     double powSum {};
     int count {};
     int cMax {};
-    unsigned char _mode;
+    unsigned char preDens {};
     for(auto x : sortedData){
         sum += x;
         powSum += pow(x, 2);
-        if(x == _mode){
+        if(x == preDens){
             ++count;
-            _mode = x;
         }
         else if(count > cMax){
-            mode = _mode;
+            mode = preDens;
+            cMax = count;
+            count = 1;
         }
+        else{
+            count = 1;
+        }
+        preDens = x;
     }
     ave = calcAve(sum);
     var = calcVar(powSum);
     min = sortedData.front();
     max = sortedData.back();
     med = sortedData.at(sortedData.size() / 2);
-
+    setHist(hist.size());
 }
 
 double Statistic::calcAve(double sum){
@@ -53,43 +57,26 @@ double Statistic::calcVar(double sum){
     return sum - pow(ave, 2);
 } 
 
-void Statistic::makeLUT(unsigned int kaichou){
-	int k;
-	static int i = 0;
-	static int dosu = 0;
-	static int ichikaichou = (int)(256 / kaichou);
-	
-	for(k = 0; k < 256; ++k){
-		if(i < ichikaichou){
-	        Lut[k] = dosu;
-		    ++i;
-		}
-	    else{
-		    dosu += ichikaichou;
-		    i = 0;
-		}
-		
-	}
-}
 
-
-
-void Statistic::setHist(){
+void Statistic::setHist(unsigned int kaichou){
     unsigned char preDens {0};
-    makeLUT(hist.size());
-    for(auto x = 0; x < sortedData.size(); ++x){
-        sortedData[x] = Lut[sortedData[x]];
-    }
-    for(auto x = 1; x < sortedData.size(); ++x){
-        if(preDens == sortedData[x]){
-
+    int ichikaichou = (int)(256/kaichou);
+    int upperLim {ichikaichou};
+    int i {};
+    
+    for(auto x : sortedData){
+        if(x < upperLim){
+            ++hist[i];
+        }
+        else{
+            ++i;
+            upperLim += ichikaichou;
         }
     }
 }
 
 
 void Statistic::printHist(){
-
 }
 //*/
 double Statistic::getAve(){

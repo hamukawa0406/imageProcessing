@@ -15,13 +15,11 @@ private:
     double min;
     double med;
     double mode;
-    unsigned char Lut[256];
-    std::array<int, 8> hist;
+    std::array<int, 32> hist;
     void setStatistic();
     double calcAve(double sum);
     double calcVar(double sum);
-    void makeLUT(unsigned int kaichou);
-    void setHist();
+    void setHist(unsigned int kaichou);
 public:
     Statistic();
     Statistic(InctImage & _img);
