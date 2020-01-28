@@ -33,7 +33,7 @@ int main(void){
 
 	image1 = makeimagestruct(image1);
 	image2 = makeimagestruct(image2);
-	loadppmimage("Lenna.ppm",image1);
+	loadppmimage("bike.ppm",image1);
 	image2 = createppmimage(image2, (int)(image1->iwidth*scale), (int)(image1->iheight*scale),image1->cmode);
 	sizeCvtBiCubic(image1, image2, scale);
 

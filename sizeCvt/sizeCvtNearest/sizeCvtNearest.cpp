@@ -18,26 +18,26 @@ int main(void){
 	int i;
 	unsigned char ave = 0;
 	char inputTxt[256] = {0};
-	double scale = 1;
-	struct ppmimg *image1=NULL, *image2=NULL;
+	double scaleBig = 2.7;
+	double scaleSmall = 1/3.0;
+	struct ppmimg *image1=NULL, *image2=NULL, *image3=NULL;
 
 //	inputScale(&scale);
-
-	puts("何倍に拡大しますか?");
-    printf("倍率: ");
-	fflush(stdin);
-    scanf("%lf", &scale);
 	
 	sprintf(dstName, "sizeCvtNearestNeighbor");
 
 	image1 = makeimagestruct(image1);
 	image2 = makeimagestruct(image2);
-	loadppmimage("Lenna.ppm",image1);
-	image2 = createppmimage(image2, (int)(image1->iwidth*scale), (int)(image1->iheight*scale),image1->cmode);
-	sizeCvtNearestNeighbor(image1, image2, scale);
+	image3 = makeimagestruct(image3);
+	loadppmimage("bike.ppm",image1);
+	image2 = createppmimage(image2, (int)(image1->iwidth*scaleBig), (int)(image1->iheight*scaleBig),image1->cmode);
+	image3 = createppmimage(image3, (int)(image1->iwidth*scaleSmall), (int)(image1->iheight*scaleSmall),image1->cmode);
+	sizeCvtNearestNeighbor(image1, image2, scaleBig);
+	sizeCvtNearestNeighbor(image1, image3, scaleSmall);
 
 	deleteppmimg(image1);
 	deleteppmimg(image2);
+	deleteppmimg(image3);
 
 	return 0;
 }
@@ -76,8 +76,14 @@ void sizeCvtNearestNeighbor(struct ppmimg *src, struct ppmimg *dst, double scale
 		//	setPnmPixel(dst,x,y,trgb);
 		}
 	}
-	sprintf(dstName, "%s.ppm", _dstName);
+	if(scale >= 1){
+	    sprintf(dstName, "%sBig.ppm", _dstName);
+	}
+	else
+	    sprintf(dstName, "%sSmall.ppm", _dstName);
+	
 	saveppmimage(dst, dstName);
+	sprintf(dstName, _dstName);
 }
 
 //*/
