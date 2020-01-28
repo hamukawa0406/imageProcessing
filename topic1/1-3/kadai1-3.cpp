@@ -14,15 +14,10 @@ int main(void){
 		catch(string str){
 			cout << str << endl;
 		}
-/*
-        for(int j = 0; j < image1->getHeight(); ++j){
-			for(int i = 0; i < image1->getWidth(); ++i){
-				std::cout << (int)image1->getPnmPixel(i, j).R << std::endl;
-			}
-		}
-//*/
 		Statistic stat(*image1);
+		Statistic stat2(*image2);
 		stat.outputStatistic();
+		stat2.outputStatistic();
 		image1->ReleaseImage();
 		image2->ReleaseImage();
 
