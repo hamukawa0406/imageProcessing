@@ -1,5 +1,6 @@
 #include "ppmload.h"
 #include<stdio.h>
+#include<chrono>
 
 //最近傍法    http://www7a.biglobe.ne.jp/~fairytale/article/program/graphics.html 参考
 //線形補間法　　　http://www7a.biglobe.ne.jp/~fairytale/article/program/graphics.html 参考
@@ -21,6 +22,7 @@ int main(void){
 	double scaleBig = 2.7;
 	double scaleSmall = 1/3.0;
 	struct ppmimg *image1=NULL, *image2=NULL, *image3=NULL;
+    std::chrono::system_clock::time_point start, end;
 
 //	inputScale(&scale);
 	
@@ -32,8 +34,13 @@ int main(void){
 	loadppmimage("bike.ppm",image1);
 	image2 = createppmimage(image2, (int)(image1->iwidth*scaleBig), (int)(image1->iheight*scaleBig),image1->cmode);
 	image3 = createppmimage(image3, (int)(image1->iwidth*scaleSmall), (int)(image1->iheight*scaleSmall),image1->cmode);
+    start = std::chrono::system_clock::now();
 	sizeCvtNearestNeighbor(image1, image2, scaleBig);
+    end = std::chrono::system_clock::now();
 	sizeCvtNearestNeighbor(image1, image3, scaleSmall);
+
+    double time = static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000.0);
+    printf("time %f[ms]\n", time);
 
 	deleteppmimg(image1);
 	deleteppmimg(image2);

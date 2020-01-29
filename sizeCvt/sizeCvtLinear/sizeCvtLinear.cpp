@@ -1,5 +1,6 @@
 #include "ppmload.h"
 #include<stdio.h>
+#include<chrono>
 
 //最近傍法    http://www7a.biglobe.ne.jp/~fairytale/article/program/graphics.html 参考
 //線形補間法　　　http://www7a.biglobe.ne.jp/~fairytale/article/program/graphics.html 参考
@@ -16,26 +17,32 @@ int main(void){
 	int i;
 	unsigned char ave = 0;
 	char inputTxt[256] = {0};
-	double scale = 1;
-	struct ppmimg *image1=NULL, *image2=NULL;
+	double scaleBig = 2.7;
+	double scaleSmall = 1/3.0;
+	struct ppmimg *image1=NULL, *image2=NULL, *image3=NULL;
+    std::chrono::system_clock::time_point start, end;
 
 //	inputScale(&scale);
-
-	puts("何倍に拡大しますか?");
-    printf("倍率: ");
-	fflush(stdin);
-    scanf("%lf", &scale);
 	
-	sprintf(dstName, "sizeCvtLinear");
+	sprintf(dstName, "sizeCvtNearestNeighbor");
 
 	image1 = makeimagestruct(image1);
 	image2 = makeimagestruct(image2);
+	image3 = makeimagestruct(image3);
 	loadppmimage("bike.ppm",image1);
-	image2 = createppmimage(image2, (int)(image1->iwidth*scale), (int)(image1->iheight*scale),image1->cmode);
-	sizeCvtLinear(image1, image2, scale);
+	image2 = createppmimage(image2, (int)(image1->iwidth*scaleBig), (int)(image1->iheight*scaleBig),image1->cmode);
+	image3 = createppmimage(image3, (int)(image1->iwidth*scaleSmall), (int)(image1->iheight*scaleSmall),image1->cmode);
+    start = std::chrono::system_clock::now();
+	sizeCvtLinear(image1, image2, scaleBig);
+    end = std::chrono::system_clock::now();
+	sizeCvtLinear(image1, image3, scaleSmall);
+
+    double time = static_cast<double>(std::chrono::duration_cast<std::chrono::microseconds>(end - start).count() / 1000.0);
+    printf("time %f[ms]\n", time);
 
 	deleteppmimg(image1);
 	deleteppmimg(image2);
+	deleteppmimg(image3);
 
 	return 0;
 }
@@ -88,8 +95,14 @@ void sizeCvtLinear(struct ppmimg *src, struct ppmimg *dst, double scale){
 			}
 		}
 	}
-	sprintf(dstName, "%s.ppm", _dstName);
+	if(scale >= 1){
+	    sprintf(dstName, "%sBig.ppm", _dstName);
+	}
+	else
+	    sprintf(dstName, "%sSmall.ppm", _dstName);
+	
 	saveppmimage(dst, dstName);
+	sprintf(dstName, _dstName);
 }
 
 //*/
