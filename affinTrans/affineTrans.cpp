@@ -1,7 +1,7 @@
 #include "affineTrans.h"
 
 affineTrans::affineTrans():
-    scale {0},
+    scale {1},
     rotate {0},
     paraTrans {0}
 {
@@ -37,7 +37,7 @@ struct point affineTrans::getSrcPoint(const struct point p, const struct point s
                    - (paraTrans.x + dstImgSize.x)*scale.y*cos(rotate) - (paraTrans.y + dstImgSize.y)*sin(rotate) + scale.x*dstImgSize.x)
                   / (scale.x*scale.y*cos(rotate)*cos(rotate) + sin(rotate)*sin(rotate)));
 //*/
-    srcP.y =  (int)(((double)-1*d*(p.x - dstImgSize.x) + a*(p.y - dstImgSize.y) + c*d - a*f + dstImgSize.y)
+    srcP.y =  (int)(((double)-1*d*(p.x - dstImgSize.x) + a*(p.y - dstImgSize.y) + c*d - a*f)// + dstImgSize.y)
            /(a*e - b*d) + dstImgSize.y);
 /*
     (int)(((-1)*sin(rotate)*p.x + scale.x*cos(rotate)*p.y

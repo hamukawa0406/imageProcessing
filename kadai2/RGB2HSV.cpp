@@ -1,56 +1,52 @@
-#include "ppmload.h"
-#include<stdio.h>
+#include "ifstream_string.h"
+#include<iostream>
 
 #define EQUAL_NUM -1
 
 struct HSVColor {
-	unsigned char H, S, V;
+	int H, S, V;
 };
 
-struct HSVColor RGB2HSV(struct RGBColor);
-void setPnmPixelHSV(struct ppmimg* simg,int x,int y,struct HSVColor _hsv);
-unsigned char min(unsigned char a, unsigned char b, unsigned char c);
-unsigned char max(unsigned char a, unsigned char b, unsigned char c);
-unsigned char roundAngle(unsigned char angle);
-
+struct HSVColor RGB2HSV(RGBColor);
+RGBColor HSV2RGB(struct HSVColor);
+int min(int a, int b, int c);
+int max(int a, int b, int c);
+int roundAngle(int angle);
 int main(void){
-	struct ppmimg *image1=NULL,*image2=NULL,*image3=NULL;
-//	struct HSVColor thsv;
+    InctImage inImg;
 
-	image1 = makeimagestruct(image1);
-	image2 = makeimagestruct(image2);
-	image3 = makeimagestruct(image3);
-	loadppmimage("Lenna.ppm",image1);
-	cloneppmimage(image1,image2);
-	image3 = createppmimage(image3,image1->iwidth,image1->iheight,image1->cmode);
-	for(int j=0;j<image1->iheight;j++){
-		for(int i=0;i<image1->iwidth;i++){
-			struct RGBColor trgb = getPnmPixel(image1,i,j);
-			struct HSVColor thsv;
-			if(image1->cmode == 1){
-				printf("ファイルタイプが違います。");
-				//trgb.dens = 255 - trgb.dens;
+	try{
+		inImg.loadppmimage("Lenna.ppm");
+	}
+	catch(string str){
+		cout << str << endl;
+	}
+
+    InctImage outImg(inImg.getWidth(), inImg.getHeight(), inImg.getDepth(), inImg.getImageMode());
+
+	for(int j = 0; j < inImg.getHeight(); j++){
+		for(int i = 0; i < inImg.getWidth(); i++){
+			RGBColor trgb = inImg.getPnmPixel(i,j);
+			struct HSVColor hsv;
+			if(inImg.getImageMode() == 1){
+				std::cout << "ファイルタイプが違う" << std::endl;
 			}else{
-				/*
-				trgb.R = 255 - trgb.R;
-				trgb.G = 255 - trgb.G;
-				trgb.B = 255 - trgb.B;
-				//*/
-
-				thsv = RGB2HSV(trgb);
+				hsv = RGB2HSV(trgb);
+				trgb = HSV2RGB(hsv);
 			}
-			setPnmPixelHSV(image3,i,j,thsv);
+			outImg.setPnmPixel(i, j, trgb);
 		}
 	}
-	saveppmimage(image3,"RGB2HSV.ppm");
-	deleteppmimg(image1);
-	deleteppmimg(image2);
-	deleteppmimg(image3);
+	outImg.savePnmImage("RGB2HSV.ppm");
+
+	inImg.ReleaseImage();
+	outImg.ReleaseImage();
 
 	return 0;
 }
 
-struct HSVColor RGB2HSV(struct RGBColor rgbTmp)
+
+struct HSVColor RGB2HSV(RGBColor rgbTmp)
 {
 	struct HSVColor hsv;
 	unsigned char maxColor = max(rgbTmp.R, rgbTmp.G, rgbTmp.B);
@@ -61,13 +57,13 @@ struct HSVColor RGB2HSV(struct RGBColor rgbTmp)
 	}
 	else{
 		if(maxColor == rgbTmp.R){
-			hsv.H = 60 * ((rgbTmp.G - rgbTmp.B) / (maxColor - minColor));
+			hsv.H = 60 * ((double)(rgbTmp.G - rgbTmp.B) / (maxColor - minColor));
 		}
 		else if(maxColor == rgbTmp.G){
-			hsv.H = 60 * ((rgbTmp.B - rgbTmp.R) / (maxColor - minColor)) + 120;
+			hsv.H = 60 * ((double)(rgbTmp.B - rgbTmp.R) / (maxColor - minColor)) + 120;
 		}
 		else if(maxColor == rgbTmp.B){
-			hsv.H = 60 * ((rgbTmp.R - rgbTmp.G) / (maxColor - minColor)) + 240;
+			hsv.H = 60 * ((double)(rgbTmp.R - rgbTmp.G) / (maxColor - minColor)) + 240;
 		}
 		else{
 			printf("エラー\n");
@@ -76,28 +72,69 @@ struct HSVColor RGB2HSV(struct RGBColor rgbTmp)
 		if(hsv.H < 0 || hsv.H >= 360)
 			hsv.H = roundAngle(hsv.H);
 	}
-	//後で0~360から外れる値を丸める処理書いとけよ俺 <- 書いたぞ、俺
+	//後で外れ値丸める処理書いとけよ俺 <- 書いたぞ、俺
 
-	hsv.S = (maxColor - minColor) / maxColor * 255;
-	hsv.V = maxColor;
+	hsv.S = (double)(maxColor - minColor) / maxColor * 100;
+	hsv.V = (double)maxColor / 255 * 100;
 
 	return hsv;
 }
 
-void setPnmPixelHSV(struct ppmimg* simg,int x,int y,struct HSVColor _hsv){
-	if(simg->cmode==3){
-		unsigned long cindex = (simg->iwidth)*y*simg->cmode+x*simg->cmode;
-		unsigned long mindex = (simg->iwidth)*y*simg->cmode+x*simg->cmode+1;
-		unsigned long yindex = (simg->iwidth)*y*simg->cmode+x*simg->cmode+2;
-		simg->dat[cindex] = _hsv.H;
-		simg->dat[mindex] = _hsv.S;
-		simg->dat[yindex] = _hsv.V;
-	}else{
-		printf("エラー\n");
+RGBColor HSV2RGB(struct HSVColor hsv){
+	int max = hsv.V;
+	int min = max - ((hsv.S/100.0)*max);
+	RGBColor rgb;
+	double r, g, b;
+
+	double s = (double)hsv.S/100;
+	double v = (double)hsv.V/100;
+
+	int dh = hsv.H/60;
+	double p = v * (1-s);
+	double q = v * (1 - s*((double)hsv.H/60 - dh));
+	double t = v * (1 - s*(1 - ((double)hsv.H/60 - dh)));
+
+	switch(dh){
+		case 0:
+		    r = v;
+			g = t;
+			b = p;
+			break;
+        case 1:
+		    r = q;
+			g = v;
+			b = p;
+            break;
+		case 2:
+		    r = p;
+			g = v;
+			b = t;
+			break;
+		case 3:
+		    r = p;
+			g = q;
+			b = v;
+			break;
+		case 4:
+		    r = t;
+			g = p;
+			b = v;
+			break;
+        case 5:
+		    r = v;
+			g = p;
+			b = q;
+			break;
 	}
+
+	rgb.R = r*255;
+	rgb.G = g*255;
+	rgb.B = b*255;
+	
+	return rgb;
 }
 
-unsigned char min(unsigned char a, unsigned char b, unsigned char c)
+int min(int a, int b, int c)
 {
 	if(a < b){
 		if(a < c) return a;
@@ -108,7 +145,7 @@ unsigned char min(unsigned char a, unsigned char b, unsigned char c)
 	return c;
 }
 
-unsigned char max(unsigned char a, unsigned char b, unsigned char c)
+int max(int a, int b, int c)
 {
 	if(a > b){
 		if(a > c) return a;
@@ -119,7 +156,7 @@ unsigned char max(unsigned char a, unsigned char b, unsigned char c)
 	return c;
 }
 
-unsigned char roundAngle(unsigned char angle)
+int roundAngle(int angle)
 {
 	if(angle < 0)
 		return angle + 360;
