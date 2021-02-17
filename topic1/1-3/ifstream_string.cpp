@@ -86,6 +86,11 @@ InctImage::InctImage(int width,int height,int depth, string mn)
 	dat.assign(size, 0);
 }
 
+void InctImage::setInFileName(string inFileName){
+	inFile = inFileName;
+}
+
+
 InctImage::InctImage(int width,int height,int depth, int cmode)
 {
 		//int channel = 0;
@@ -493,6 +498,8 @@ void InctImage::loadppmimage(string filename)
 	string st,head_str;
 	ifstream infile;
 
+	setInFileName(filename);
+
 	cout << "Image Open Process Start!" << endl;
 	cout << "Input File Name is " << filename << endl;
 	infile.open(filename.c_str(),ios::binary);
@@ -533,9 +540,6 @@ void InctImage::loadppmimage(string filename)
 		}else if(head_str=="P6"){
 			cmode=5;
 			channel = 3;
-		}
-		else{
-		    cout << "fuckyou p" << head_str << endl;
 		}
 
 

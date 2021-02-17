@@ -70,6 +70,7 @@ private:
 	int iheight;
 	int idepth;
 	string iFilename;
+	string inFile;
 	int channel;
 	int cmode;
 	string magicN;
@@ -94,6 +95,7 @@ public:
 	//}
 	static void savePnmImage(InctImage &source,string filename);
 	void setFileName(string filename);
+	void setInFileName(string filename);
 	void savePnmImage(string filename);
 	void savePnmImage();
 	int getWidth() const{return iwidth;};
@@ -101,6 +103,7 @@ public:
 	int getDepth() const{return idepth;};
 	int getImageMode() const{return cmode;};
 	string getMagicNumber() const{return magicN;};
+	string getInFileName() const{return inFile;};
 	void ReleaseImage();	
 };
 

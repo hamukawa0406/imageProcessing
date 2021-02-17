@@ -1,4 +1,5 @@
 #include "ifstream_string.h"
+#include "statistic.h"
 
 int main(void){
 		InctImage* image1 = new InctImage();
@@ -9,55 +10,16 @@ int main(void){
 		try{
 			image1->loadppmimage("aveRGB.ppm");
 			image2->loadppmimage("monocro.ppm");
-		}
+		}	
 		catch(string str){
 			cout << str << endl;
 		}
-
-		InctImage* monoImage = new InctImage(image1->getWidth(), image1->getHeight(), image1->getDepth(), image1->getImageMode());
-		InctImage* aveRGBImage = new InctImage(image1->getWidth(), image1->getHeight(), image1->getDepth(), image1->getImageMode());
-
-
-		//image3 = createppmimage(image3, image1->iwidth, image1->iheight, image1->cmode);
-		unsigned char monoDens, aveDens;
-
-		for (int j = 0; j<image1->getHeight(); j++){
-			for (int i = 0; i<image1->getWidth(); i++){
-
-				RGBColor inRGB;
-
-				inRGB = image1->getPnmPixel(i, j);
-				RGBColor mono = inRGB;
-				RGBColor aveRGB = inRGB;
-				
-
-				if (image1->getImageMode() == 1){
-				//	trgb1.dens = 255 - trgb.dens;
-				}
-				else{
-				//	trgb1.R = trgb1.R;
-				    aveDens = (unsigned char)(((double)inRGB.getR() + (double)inRGB.getG() + (double)inRGB.getB()) / 3);
-				    aveRGB.setR(aveDens);
-					aveRGB.setG(aveDens);
-					aveRGB.setB(aveDens);
-					
-				    monoDens = (unsigned char)(0.299*inRGB.getR() + 0.587*inRGB.getG() + 0.114*inRGB.getB());
-					mono.setR(monoDens);
-					mono.setB(monoDens);
-					mono.setR(monoDens);
-
-				}
-				monoImage->setPnmPixel(i, j, mono);
-				aveRGBImage->setPnmPixel(i, j, aveRGB);
-
-			}
-		}
-		aveRGBImage->savePnmImage("aveRGB.ppm");
-		monoImage->savePnmImage("monocro.ppm");
-
+		Statistic stat(*image1);
+		Statistic stat2(*image2);
+		stat.outputStatistic();
+		stat2.outputStatistic();
 		image1->ReleaseImage();
-		aveRGBImage->ReleaseImage();
-		monoImage->ReleaseImage();
+		image2->ReleaseImage();
 
 	return 0;
 }

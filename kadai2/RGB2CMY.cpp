@@ -1,51 +1,47 @@
-#include "ppmload.h"
 #include<stdio.h>
+#include "ifstream_string.h"
 
 struct CMYColor {
 	unsigned char C, M, Y;
 };
 
-struct CMYColor RGB2CMY(struct RGBColor);
-void setPnmPixelCMY(struct ppmimg* simg,int x,int y,struct CMYColor _cmy);
+struct CMYColor RGB2CMY(RGBColor);
+RGBColor CMY2RGB(struct CMYColor);
 
 int main(void){
-	struct ppmimg *image1=NULL,*image2=NULL,*image3=NULL;
-//	struct CMYColor tcmy;
+    InctImage inImg;
 
-	image1 = makeimagestruct(image1);
-	image2 = makeimagestruct(image2);
-	image3 = makeimagestruct(image3);
-	loadppmimage("Lenna.ppm",image1);
-	cloneppmimage(image1,image2);
-	image3 = createppmimage(image3,image1->iwidth,image1->iheight,image1->cmode);
-	for(int j=0;j<image1->iheight;j++){
-		for(int i=0;i<image1->iwidth;i++){
-			struct RGBColor trgb = getPnmPixel(image1,i,j);
+	try{
+		inImg.loadppmimage("Lenna.ppm");
+	}
+	catch(string str){
+		cout << str << endl;
+	}
+
+    InctImage outImg(inImg.getWidth(), inImg.getHeight(), inImg.getDepth(), inImg.getImageMode());
+
+	for(int j = 0; j < inImg.getHeight(); j++){
+		for(int i = 0; i < inImg.getWidth(); i++){
+			RGBColor trgb = inImg.getPnmPixel(i,j);
 			struct CMYColor tcmy;
-			if(image1->cmode == 1){
-				printf("ファイルタイプが違います。");
-				//trgb.dens = 255 - trgb.dens;
+			if(inImg.getImageMode() == 1){
+				std::cout << "ファイルタイプが違う" << std::endl;
 			}else{
-				/*
-				trgb.R = 255 - trgb.R;
-				trgb.G = 255 - trgb.G;
-				trgb.B = 255 - trgb.B;
-				//*/
-
 				tcmy = RGB2CMY(trgb);
+				trgb = CMY2RGB(tcmy);
 			}
-			setPnmPixelCMY(image3,i,j,tcmy);
+			outImg.setPnmPixel(i, j, trgb);
 		}
 	}
-	saveppmimage(image3,"RGB2CMY.ppm");
-	deleteppmimg(image1);
-	deleteppmimg(image2);
-	deleteppmimg(image3);
+	outImg.savePnmImage("RGB2CMY.ppm");
+
+	inImg.ReleaseImage();
+	outImg.ReleaseImage();
 
 	return 0;
 }
 
-struct CMYColor RGB2CMY(struct RGBColor rgbTmp)
+struct CMYColor RGB2CMY(RGBColor rgbTmp)
 {
 	struct CMYColor cmy;
 	cmy.C = 255 - rgbTmp.R;
@@ -55,15 +51,13 @@ struct CMYColor RGB2CMY(struct RGBColor rgbTmp)
 	return cmy;
 }
 
-void setPnmPixelCMY(struct ppmimg* simg,int x,int y,struct CMYColor _cmy){
-	if(simg->cmode==3){
-		unsigned long cindex = (simg->iwidth)*y*simg->cmode+x*simg->cmode;
-		unsigned long mindex = (simg->iwidth)*y*simg->cmode+x*simg->cmode+1;
-		unsigned long yindex = (simg->iwidth)*y*simg->cmode+x*simg->cmode+2;
-		simg->dat[cindex] = _cmy.C;
-		simg->dat[mindex] = _cmy.M;
-		simg->dat[yindex] = _cmy.Y;
-	}else{
-		printf("エラー\n");
-	}
+RGBColor CMY2RGB(struct CMYColor cmy) 
+{
+	RGBColor rgb;
+	rgb.R = 255 - cmy.C;
+	rgb.G = 255 - cmy.M;
+	rgb.B = 255 - cmy.Y;
+
+	return rgb;
 }
+

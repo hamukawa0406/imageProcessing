@@ -1,76 +1,80 @@
-#include "ppmload.h"
 #include<stdio.h>
+#include "ifstream_string.h"
 
 struct CMYKColor {
 	unsigned char C, M, Y, K;
 };
 
-struct CMYKColor RGB2CMYK(struct RGBColor);
-void setPnmPixelCMYK(struct ppmimg* simg,int x,int y,struct CMYKColor _cmyk);
-unsigned char min(unsigned char a, unsigned char b, unsigned char c);
+struct CMYKColor RGB2CMYK(RGBColor);
+RGBColor CMYK2RGB(struct CMYKColor);
+
+unsigned char min(unsigned char a, unsigned char b);
+unsigned char min3(unsigned char a, unsigned char b, unsigned char c);
 
 int main(void){
-	struct ppmimg *image1=NULL,*image2=NULL,*image3=NULL;
-//	struct CMYKColor tcmyk;
+    InctImage inImg;
 
-	image1 = makeimagestruct(image1);
-	image2 = makeimagestruct(image2);
-	image3 = makeimagestruct(image3);
-	loadppmimage("Lenna.ppm",image1);
-	cloneppmimage(image1,image2);
-	image3 = createppmimage(image3,image1->iwidth,image1->iheight,image1->cmode);
-	for(int j=0;j<image1->iheight;j++){
-		for(int i=0;i<image1->iwidth;i++){
-			struct RGBColor trgb = getPnmPixel(image1,i,j);
+	try{
+		inImg.loadppmimage("Lenna.ppm");
+	}
+	catch(string str){
+		cout << str << endl;
+	}
+
+    InctImage outImg(inImg.getWidth(), inImg.getHeight(), inImg.getDepth(), inImg.getImageMode());
+
+	for(int j = 0; j < inImg.getHeight(); j++){
+		for(int i = 0; i < inImg.getWidth(); i++){
+			RGBColor trgb = inImg.getPnmPixel(i,j);
 			struct CMYKColor tcmyk;
-			if(image1->cmode == 1){
-				printf("ファイルタイプが違います。");
-				//trgb.dens = 255 - trgb.dens;
+			if(inImg.getImageMode() == 1){
+				std::cout << "ファイルタイプが違う" << std::endl;
 			}else{
-				/*
-				trgb.R = 255 - trgb.R;
-				trgb.G = 255 - trgb.G;
-				trgb.B = 255 - trgb.B;
-				//*/
-
 				tcmyk = RGB2CMYK(trgb);
+				trgb = CMYK2RGB(tcmyk);
 			}
-			setPnmPixelCMYK(image3,i,j,tcmyk);
+			outImg.setPnmPixel(i, j, trgb);
 		}
 	}
-	saveppmimage(image3,"RGB2CMYK.ppm");
-	deleteppmimg(image1);
-	deleteppmimg(image2);
-	deleteppmimg(image3);
+	outImg.savePnmImage("RGB2CMYK.ppm");
+
+	inImg.ReleaseImage();
+	outImg.ReleaseImage();
 
 	return 0;
 }
 
-struct CMYKColor RGB2CMYK(struct RGBColor rgbTmp)
+
+
+struct CMYKColor RGB2CMYK(RGBColor rgbTmp)
 {
 	struct CMYKColor cmyk;
-	cmyk.K = 255 - min(255 - rgbTmp.R, 255 - rgbTmp.G, 255 - rgbTmp.B);
-	cmyk.C = 255 - rgbTmp.R - cmyk.K;
-	cmyk.M = 255 - rgbTmp.G - cmyk.K;
-	cmyk.Y = 255 - rgbTmp.B - cmyk.K;
+	cmyk.K = min3(255 - rgbTmp.R, 255 - rgbTmp.G, 255 - rgbTmp.B);
+	if( cmyk.K == 255) cmyk.K = 254;
+	cmyk.C = (double)(255 - rgbTmp.R - cmyk.K) / (255 - cmyk.K) * 255;
+	cmyk.M = (double)(255 - rgbTmp.G - cmyk.K) / (255 - cmyk.K) * 255;
+	cmyk.Y = (double)(255 - rgbTmp.B - cmyk.K) / (255 - cmyk.K) * 255;
 
 	return cmyk;
 }
 
-void setPnmPixelCMYK(struct ppmimg* simg,int x,int y,struct CMYKColor _cmyk){
-	if(simg->cmode==3){
-		unsigned long cindex = (simg->iwidth)*y*simg->cmode+x*simg->cmode;
-		unsigned long mindex = (simg->iwidth)*y*simg->cmode+x*simg->cmode+1;
-		unsigned long yindex = (simg->iwidth)*y*simg->cmode+x*simg->cmode+2;
-		simg->dat[cindex] = _cmyk.C;
-		simg->dat[mindex] = _cmyk.M;
-		simg->dat[yindex] = _cmyk.Y;
-	}else{
-		printf("エラー\n");
-	}
+RGBColor CMYK2RGB(struct CMYKColor cmyk)
+{
+	RGBColor trgb;
+	trgb.R = 255 - cmyk.C*(255 - cmyk.K)/255.0 - cmyk.K;
+	trgb.G = 255 - cmyk.M*(255 - cmyk.K)/255.0 - cmyk.K;
+	trgb.B = 255 - cmyk.Y*(255 - cmyk.K)/255.0 - cmyk.K;
+	
+	return trgb;
 }
 
-unsigned char min(unsigned char a, unsigned char b, unsigned char c)
+unsigned char min(unsigned char a, unsigned char b)
+{
+	if(a < b) return a;
+	else return b;
+}
+
+unsigned char min3(unsigned char a, unsigned char b, unsigned char c)
 {
 	if(a < b){
 		if(a < c) return a;

@@ -12,20 +12,15 @@
 //*/ 
 
 int main(void){
-	int inSelect{}, inRank;
-	InctImage* image1 = new InctImage();
-
+	int inSelect{}, inRank{};
+/*
 	try{
 		image1->loadppmimage("inussg.pgm");
 	}
 	catch(string str){
 		cout << str << endl;
 	}
-
-	cout << "cmode=" << image1->getImageMode() << endl;
-	cout << "magicNum=" << image1->getMagicNumber() << endl;
-	InctImage* dstImage = new InctImage(image1->getWidth(), image1->getHeight(), image1->getDepth(), image1->getImageMode());
-
+//*/
 	std::cout << "1...ランク値フィルタ" << std::endl;
 	std::cout << "2...中央値フィルタ" << std::endl;
 	std::cout << "3...最頻値フィルタ" << std::endl;
@@ -38,21 +33,25 @@ int main(void){
 	}while(inSelect <= 0 || inSelect > 5);
 	
 
-	filter flt = filter(*image1, *dstImage, inSelect);
+	filter flt = filter(inSelect);
 
-	for (int j = 1; j<image1->getHeight() - 1; j++){
-		for (int i = 1; i<image1->getWidth() - 1; i++){
+
+	cout << "cmode=" << flt.srcImg.getImageMode() << endl;
+	cout << "magicNum=" << flt.srcImg.getMagicNumber() << endl;
+
+	for (int j = 1; j < flt.srcImg.getHeight() - 1; j++){
+		for (int i = 1; i < flt.srcImg.getWidth() - 1; i++){
 			RGBColor tRGB;
 
-			tRGB = flt.filtering(i, j);
+		    tRGB = flt.filtering(i, j);
 
-			dstImage->setPnmPixel(i, j, tRGB);
+			flt.dstImg.setPnmPixel(i, j, tRGB);
 		}
 	}
-	dstImage->savePnmImage();
+	flt.dstImg.savePnmImage();
 
-	image1->ReleaseImage();
-	dstImage->ReleaseImage();
+	flt.srcImg.ReleaseImage();
+	flt.dstImg.ReleaseImage();
 
 	return 0;
 }

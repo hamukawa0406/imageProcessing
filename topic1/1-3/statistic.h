@@ -1,30 +1,30 @@
 #include<iostream>
 #include<array>
+#include<algorithm>
+#include<cmath>
 #include "ifstream_string.h"
 
 
 class Statistic
 {
 private:
-    InctImage img;
+    InctImage& img;
+    std::string outname;
+    std::ofstream writing_file;
+    std::vector<unsigned char> sortedData;
     double ave;
     double var;
     double max;
     double min;
     double med;
     double mode;
-    double hist[8];
-    double calcAve();
-    double calcVar();
-    double calcMax();
-    double calcMin();
-    double calcMed();
-    double calcMode();
+    std::array<int, 32> hist;
+    void setStatistic();
+    double calcAve(double sum);
+    double calcVar(double sum);
     void setHist();
 public:
-    Statistic();
-    Statistic(InctImage);
-    ~Statistic();
+    Statistic(InctImage & _img);
     double getAve();
     double getVar();
     double getMax();
@@ -32,4 +32,5 @@ public:
     double getMed();
     double getMode();
     void printHist();
+    void outputStatistic();
 };

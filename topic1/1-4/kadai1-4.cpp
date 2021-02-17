@@ -1,67 +1,47 @@
 #include "ifstream_string.h"
+#include "statistic.h"
 
 int main(void){
-		InctImage* image1 = new InctImage();
-		//ppmimg�̎��̂𐶐�
+	string Red {"RedOnly.ppm"};
+	string Green {"GreenOnly.ppm"};
+	string Blue {"BlueOnly.ppm"};
+	InctImage* image1 = new InctImage();
+	InctImage* image2 = new InctImage();
+	InctImage* image3 = new InctImage();
+	
+	//ppmimg�̎��̂𐶐�
 
-		//���ۂ̉摜�̓ǂݍ���
-		try{
-			image1->loadppmimage("Lenna.ppm");
+	//���ۂ̉摜�̓ǂݍ���
+	try{
+		image1->loadppmimage(Red);
+		image2->loadppmimage(Green);
+		image3->loadppmimage(Blue);
+	}	
+	catch(string str){
+		cout << str << endl;
+	}
+	RGBColor trgb;
+	for(int j = 0; j < image1->getHeight(); ++j){
+		for(int i = 0; i < image1->getWidth(); ++i){
+			trgb = image2->getPnmPixel(i, j);
+			trgb.setR(trgb.getG());
+			trgb.setG(0);
+			image2->setPnmPixel(i, j, trgb);
+			trgb = image3->getPnmPixel(i, j);
+			trgb.setR(trgb.getB());
+			trgb.setB(0);
+			image3->setPnmPixel(i, j, trgb);
 		}
-		catch(string str){
-			cout << str << endl;
-		}
-		//�摜�̃N���[���쐻
-
-		cout << "cmode=" << image1->getImageMode() << endl;
-		cout << "magicNum=" << image1->getMagicNumber() << endl;
-		InctImage* Rimage = new InctImage(image1->getWidth(), image1->getHeight(), image1->getDepth(), image1->getImageMode());
-		InctImage* Gimage = new InctImage(image1->getWidth(), image1->getHeight(), image1->getDepth(), image1->getImageMode());
-		InctImage* Bimage = new InctImage(image1->getWidth(), image1->getHeight(), image1->getDepth(), image1->getImageMode());
-
-
-		//�摜�̃N���[���蓮�쐬
-		//image3 = createppmimage(image3, image1->iwidth, image1->iheight, image1->cmode);
-
-		for (int j = 0; j<image1->getHeight(); j++){
-			for (int i = 0; i<image1->getWidth(); i++){
-
-				RGBColor tRgb;
-
-				tRgb = image1->getPnmPixel(i, j);
-
-				RGBColor trGb = tRgb;
-				RGBColor trgB = tRgb;
-				
-
-				if (image1->getImageMode() == 1){
-				//	trgb1.dens = 255 - trgb.dens;
-				}
-				else{
-				//	trgb1.R = trgb1.R;
-					tRgb.setG(0);
-					tRgb.setB(0);
-					
-					trGb.setB(0);
-					trGb.setR(0);
-
-					trgB.setR(0);
-					trgB.setG(0);
-				}
-				Rimage->setPnmPixel(i, j, tRgb);
-				Gimage->setPnmPixel(i, j, trGb);
-				Bimage->setPnmPixel(i, j, trgB);
-
-			}
-		}
-		Rimage->savePnmImage("RedOnly.ppm");
-		Gimage->savePnmImage("GreenOnly.ppm");
-		Bimage->savePnmImage("BlueOnly.ppm");
-
-		image1->ReleaseImage();
-		Rimage->ReleaseImage();
-		Gimage->ReleaseImage();
-		Bimage->ReleaseImage();
+	}
+	Statistic stat1(*image1);
+	Statistic stat2(*image2);
+	Statistic stat3(*image3);
+	stat1.outputStatistic();
+	stat2.outputStatistic();
+	stat3.outputStatistic();
+	image1->ReleaseImage();
+	image2->ReleaseImage();
+	image3->ReleaseImage();
 
 	return 0;
 }
